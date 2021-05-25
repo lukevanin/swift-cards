@@ -17,6 +17,7 @@
 		FC7DF1C0265D93B0009D2A07 /* Pack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1BF265D93B0009D2A07 /* Pack.swift */; };
 		FC7DF1C2265D942E009D2A07 /* StandardDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1C1265D942E009D2A07 /* StandardDeckTests.swift */; };
 		FC7DF1C4265D97BC009D2A07 /* PackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1C3265D97BC009D2A07 /* PackTests.swift */; };
+		FC7DF1C6265DAE8F009D2A07 /* KenneyCards.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC7DF1C5265DAE8F009D2A07 /* KenneyCards.xcassets */; };
 		FC808963265D7E7200CDA388 /* CardsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC808962265D7E7200CDA388 /* CardsApp.swift */; };
 		FC808965265D7E7200CDA388 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC808964265D7E7200CDA388 /* ContentView.swift */; };
 		FC808967265D7E7300CDA388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC808966265D7E7300CDA388 /* Assets.xcassets */; };
@@ -89,6 +90,7 @@
 		FC7DF1BF265D93B0009D2A07 /* Pack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pack.swift; sourceTree = "<group>"; };
 		FC7DF1C1265D942E009D2A07 /* StandardDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardDeckTests.swift; sourceTree = "<group>"; };
 		FC7DF1C3265D97BC009D2A07 /* PackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackTests.swift; sourceTree = "<group>"; };
+		FC7DF1C5265DAE8F009D2A07 /* KenneyCards.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = KenneyCards.xcassets; sourceTree = "<group>"; };
 		FC80895F265D7E7200CDA388 /* Cards.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cards.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC808962265D7E7200CDA388 /* CardsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsApp.swift; sourceTree = "<group>"; };
 		FC808964265D7E7200CDA388 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				FC808962265D7E7200CDA388 /* CardsApp.swift */,
 				FC808964265D7E7200CDA388 /* ContentView.swift */,
 				FC808966265D7E7300CDA388 /* Assets.xcassets */,
+				FC7DF1C5265DAE8F009D2A07 /* KenneyCards.xcassets */,
 				FC80896B265D7E7300CDA388 /* Info.plist */,
 				FC808968265D7E7300CDA388 /* Preview Content */,
 			);
@@ -406,6 +409,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC7DF1C6265DAE8F009D2A07 /* KenneyCards.xcassets in Resources */,
 				FC80896A265D7E7300CDA388 /* Preview Assets.xcassets in Resources */,
 				FC808967265D7E7300CDA388 /* Assets.xcassets in Resources */,
 			);
