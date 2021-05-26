@@ -126,5 +126,10 @@ public struct FiftyTwoCardFrenchSuiteDeck: AbstractDeck {
 
         public let rank: Rank
         public var suite: Suite
+        
+        public init(rank: Rank, suite: Suite) {
+            self.rank = rank
+            self.suite = suite
+        }
     }
 }
