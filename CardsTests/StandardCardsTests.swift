@@ -14,7 +14,7 @@ class StandardCardsTests: XCTestCase {
     private var factory: FiftyTwoCardFrenchSuiteCardImageFactory!
 
     override func setUp() {
-        factory = FiftyTwoCardFrenchSuiteCardImageFactory.default()
+        factory = FiftyTwoCardFrenchSuiteCardImageFactory.standard
     }
     
     func testFactoryShouldReturnImageForCard() throws {

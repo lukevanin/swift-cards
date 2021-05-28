@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC1380B8265FE2060019BF56 /* Blackjack.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1380B6265FE2060019BF56 /* Blackjack.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FC1380BB265FE2060019BF56 /* Blackjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1380B4265FE2050019BF56 /* Blackjack.framework */; };
+		FC1380BC265FE2060019BF56 /* Blackjack.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FC1380B4265FE2050019BF56 /* Blackjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FC1380C7265FE21C0019BF56 /* BlackjackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380C6265FE21C0019BF56 /* BlackjackTests.swift */; };
+		FC1380D1265FE2370019BF56 /* Blackjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1380B4265FE2050019BF56 /* Blackjack.framework */; };
+		FC1380D7265FE2580019BF56 /* BlackjackGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380D6265FE2580019BF56 /* BlackjackGame.swift */; };
+		FC1380DA265FE6930019BF56 /* Deck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC7DF19D265D80BC009D2A07 /* Deck.framework */; };
+		FC1380E0265FEAED0019BF56 /* ShoeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380DF265FEAED0019BF56 /* ShoeTests.swift */; };
+		FC1380E2265FEB4E0019BF56 /* Shoe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380D8265FE5110019BF56 /* Shoe.swift */; };
+		FC1380E42660E8AC0019BF56 /* SeededRandomNumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */; };
 		FC7DF1A6265D80BC009D2A07 /* Deck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC7DF19D265D80BC009D2A07 /* Deck.framework */; };
 		FC7DF1AD265D80BC009D2A07 /* DeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1AC265D80BC009D2A07 /* DeckTests.swift */; };
 		FC7DF1AF265D80BC009D2A07 /* Deck.h in Headers */ = {isa = PBXBuildFile; fileRef = FC7DF19F265D80BC009D2A07 /* Deck.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -30,19 +40,47 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		FC7DF1A7265D80BC009D2A07 /* PBXContainerItemProxy */ = {
+		FC1380B9265FE2060019BF56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC1380B3265FE2050019BF56;
+			remoteInfo = Blackjack;
+		};
+		FC1380CE265FE22E0019BF56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC1380B3265FE2050019BF56;
+			remoteInfo = Blackjack;
+		};
+		FC1380D2265FE2450019BF56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC80895E265D7E7200CDA388;
+			remoteInfo = Cards;
+		};
+		FC1380D4265FE24B0019BF56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC80895E265D7E7200CDA388;
+			remoteInfo = Cards;
+		};
+		FC1380DC265FE6930019BF56 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = FC7DF19C265D80BC009D2A07;
 			remoteInfo = Deck;
 		};
-		FC7DF1A9265D80BC009D2A07 /* PBXContainerItemProxy */ = {
+		FC7DF1A7265D80BC009D2A07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FC808957265D7E7200CDA388 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = FC80895E265D7E7200CDA388;
-			remoteInfo = Cards;
+			remoteGlobalIDString = FC7DF19C265D80BC009D2A07;
+			remoteInfo = Deck;
 		};
 		FC7DF1B0265D80BC009D2A07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -75,6 +113,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				FC7DF1B3265D80BC009D2A07 /* Deck.framework in Embed Frameworks */,
+				FC1380BC265FE2060019BF56 /* Blackjack.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -82,6 +121,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FC1380B4265FE2050019BF56 /* Blackjack.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Blackjack.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC1380B6265FE2060019BF56 /* Blackjack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Blackjack.h; sourceTree = "<group>"; };
+		FC1380B7265FE2060019BF56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC1380C4265FE21C0019BF56 /* BlackjackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlackjackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC1380C6265FE21C0019BF56 /* BlackjackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackjackTests.swift; sourceTree = "<group>"; };
+		FC1380C8265FE21C0019BF56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC1380D6265FE2580019BF56 /* BlackjackGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackjackGame.swift; sourceTree = "<group>"; };
+		FC1380D8265FE5110019BF56 /* Shoe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shoe.swift; sourceTree = "<group>"; };
+		FC1380DF265FEAED0019BF56 /* ShoeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoeTests.swift; sourceTree = "<group>"; };
+		FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomNumberGenerator.swift; sourceTree = "<group>"; };
 		FC7DF19D265D80BC009D2A07 /* Deck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Deck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC7DF19F265D80BC009D2A07 /* Deck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Deck.h; sourceTree = "<group>"; };
 		FC7DF1A0265D80BC009D2A07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -112,6 +161,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FC1380B1265FE2050019BF56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC1380DA265FE6930019BF56 /* Deck.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC1380C1265FE21C0019BF56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC1380D1265FE2370019BF56 /* Blackjack.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC7DF19A265D80BC009D2A07 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -132,6 +197,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC7DF1B2265D80BC009D2A07 /* Deck.framework in Frameworks */,
+				FC1380BB265FE2060019BF56 /* Blackjack.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +218,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FC1380B5265FE2060019BF56 /* Blackjack */ = {
+			isa = PBXGroup;
+			children = (
+				FC1380B6265FE2060019BF56 /* Blackjack.h */,
+				FC1380D6265FE2580019BF56 /* BlackjackGame.swift */,
+				FC1380D8265FE5110019BF56 /* Shoe.swift */,
+				FC1380B7265FE2060019BF56 /* Info.plist */,
+			);
+			path = Blackjack;
+			sourceTree = "<group>";
+		};
+		FC1380C5265FE21C0019BF56 /* BlackjackTests */ = {
+			isa = PBXGroup;
+			children = (
+				FC1380C6265FE21C0019BF56 /* BlackjackTests.swift */,
+				FC1380DF265FEAED0019BF56 /* ShoeTests.swift */,
+				FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */,
+				FC1380C8265FE21C0019BF56 /* Info.plist */,
+			);
+			path = BlackjackTests;
+			sourceTree = "<group>";
+		};
+		FC1380D0265FE2370019BF56 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FC7DF19E265D80BC009D2A07 /* Deck */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,9 +276,12 @@
 				FC808961265D7E7200CDA388 /* Cards */,
 				FC808973265D7E7300CDA388 /* CardsTests */,
 				FC80897E265D7E7300CDA388 /* CardsUITests */,
+				FC1380B5265FE2060019BF56 /* Blackjack */,
+				FC1380C5265FE21C0019BF56 /* BlackjackTests */,
 				FC7DF19E265D80BC009D2A07 /* Deck */,
 				FC7DF1AB265D80BC009D2A07 /* DeckTests */,
 				FC808960265D7E7200CDA388 /* Products */,
+				FC1380D0265FE2370019BF56 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -195,6 +293,8 @@
 				FC80897B265D7E7300CDA388 /* CardsUITests.xctest */,
 				FC7DF19D265D80BC009D2A07 /* Deck.framework */,
 				FC7DF1A5265D80BC009D2A07 /* DeckTests.xctest */,
+				FC1380B4265FE2050019BF56 /* Blackjack.framework */,
+				FC1380C4265FE21C0019BF56 /* BlackjackTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -244,6 +344,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		FC1380AF265FE2050019BF56 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC1380B8265FE2060019BF56 /* Blackjack.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC7DF198265D80BC009D2A07 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -255,6 +363,44 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		FC1380B3265FE2050019BF56 /* Blackjack */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC1380BD265FE2060019BF56 /* Build configuration list for PBXNativeTarget "Blackjack" */;
+			buildPhases = (
+				FC1380AF265FE2050019BF56 /* Headers */,
+				FC1380B0265FE2050019BF56 /* Sources */,
+				FC1380B1265FE2050019BF56 /* Frameworks */,
+				FC1380B2265FE2050019BF56 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FC1380DD265FE6930019BF56 /* PBXTargetDependency */,
+			);
+			name = Blackjack;
+			productName = Blackjack;
+			productReference = FC1380B4265FE2050019BF56 /* Blackjack.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		FC1380C3265FE21C0019BF56 /* BlackjackTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC1380CB265FE21D0019BF56 /* Build configuration list for PBXNativeTarget "BlackjackTests" */;
+			buildPhases = (
+				FC1380C0265FE21C0019BF56 /* Sources */,
+				FC1380C1265FE21C0019BF56 /* Frameworks */,
+				FC1380C2265FE21C0019BF56 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FC1380D5265FE24B0019BF56 /* PBXTargetDependency */,
+				FC1380CF265FE22E0019BF56 /* PBXTargetDependency */,
+			);
+			name = BlackjackTests;
+			productName = BlackjackTests;
+			productReference = FC1380C4265FE21C0019BF56 /* BlackjackTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		FC7DF19C265D80BC009D2A07 /* Deck */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FC7DF1B9265D80BC009D2A07 /* Build configuration list for PBXNativeTarget "Deck" */;
@@ -284,8 +430,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				FC1380D3265FE2450019BF56 /* PBXTargetDependency */,
 				FC7DF1A8265D80BC009D2A07 /* PBXTargetDependency */,
-				FC7DF1AA265D80BC009D2A07 /* PBXTargetDependency */,
 			);
 			name = DeckTests;
 			productName = DeckTests;
@@ -305,6 +451,7 @@
 			);
 			dependencies = (
 				FC7DF1B1265D80BC009D2A07 /* PBXTargetDependency */,
+				FC1380BA265FE2060019BF56 /* PBXTargetDependency */,
 			);
 			name = Cards;
 			productName = Cards;
@@ -356,6 +503,14 @@
 				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
+					FC1380B3265FE2050019BF56 = {
+						CreatedOnToolsVersion = 12.5;
+						LastSwiftMigration = 1250;
+					};
+					FC1380C3265FE21C0019BF56 = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = FC80895E265D7E7200CDA388;
+					};
 					FC7DF19C265D80BC009D2A07 = {
 						CreatedOnToolsVersion = 12.5;
 						LastSwiftMigration = 1250;
@@ -395,11 +550,27 @@
 				FC80897A265D7E7300CDA388 /* CardsUITests */,
 				FC7DF19C265D80BC009D2A07 /* Deck */,
 				FC7DF1A4265D80BC009D2A07 /* DeckTests */,
+				FC1380B3265FE2050019BF56 /* Blackjack */,
+				FC1380C3265FE21C0019BF56 /* BlackjackTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FC1380B2265FE2050019BF56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC1380C2265FE21C0019BF56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC7DF19B265D80BC009D2A07 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -441,6 +612,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FC1380B0265FE2050019BF56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC1380E2265FEB4E0019BF56 /* Shoe.swift in Sources */,
+				FC1380D7265FE2580019BF56 /* BlackjackGame.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC1380C0265FE21C0019BF56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC1380E0265FEAED0019BF56 /* ShoeTests.swift in Sources */,
+				FC1380C7265FE21C0019BF56 /* BlackjackTests.swift in Sources */,
+				FC1380E42660E8AC0019BF56 /* SeededRandomNumberGenerator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC7DF199265D80BC009D2A07 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -492,15 +682,35 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FC1380BA265FE2060019BF56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC1380B3265FE2050019BF56 /* Blackjack */;
+			targetProxy = FC1380B9265FE2060019BF56 /* PBXContainerItemProxy */;
+		};
+		FC1380CF265FE22E0019BF56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC1380B3265FE2050019BF56 /* Blackjack */;
+			targetProxy = FC1380CE265FE22E0019BF56 /* PBXContainerItemProxy */;
+		};
+		FC1380D3265FE2450019BF56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC80895E265D7E7200CDA388 /* Cards */;
+			targetProxy = FC1380D2265FE2450019BF56 /* PBXContainerItemProxy */;
+		};
+		FC1380D5265FE24B0019BF56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC80895E265D7E7200CDA388 /* Cards */;
+			targetProxy = FC1380D4265FE24B0019BF56 /* PBXContainerItemProxy */;
+		};
+		FC1380DD265FE6930019BF56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC7DF19C265D80BC009D2A07 /* Deck */;
+			targetProxy = FC1380DC265FE6930019BF56 /* PBXContainerItemProxy */;
+		};
 		FC7DF1A8265D80BC009D2A07 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FC7DF19C265D80BC009D2A07 /* Deck */;
 			targetProxy = FC7DF1A7265D80BC009D2A07 /* PBXContainerItemProxy */;
-		};
-		FC7DF1AA265D80BC009D2A07 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = FC80895E265D7E7200CDA388 /* Cards */;
-			targetProxy = FC7DF1A9265D80BC009D2A07 /* PBXContainerItemProxy */;
 		};
 		FC7DF1B1265D80BC009D2A07 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -520,6 +730,105 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		FC1380BE265FE2060019BF56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = DBK476475Y;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Blackjack/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukevanin.Blackjack;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		FC1380BF265FE2060019BF56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = DBK476475Y;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Blackjack/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukevanin.Blackjack;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		FC1380CC265FE21D0019BF56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DBK476475Y;
+				INFOPLIST_FILE = BlackjackTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukevanin.BlackjackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cards.app/Cards";
+			};
+			name = Debug;
+		};
+		FC1380CD265FE21D0019BF56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DBK476475Y;
+				INFOPLIST_FILE = BlackjackTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lukevanin.BlackjackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cards.app/Cards";
+			};
+			name = Release;
+		};
 		FC7DF1B5265D80BC009D2A07 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -872,6 +1181,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FC1380BD265FE2060019BF56 /* Build configuration list for PBXNativeTarget "Blackjack" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC1380BE265FE2060019BF56 /* Debug */,
+				FC1380BF265FE2060019BF56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FC1380CB265FE21D0019BF56 /* Build configuration list for PBXNativeTarget "BlackjackTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC1380CC265FE21D0019BF56 /* Debug */,
+				FC1380CD265FE21D0019BF56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FC7DF1B9265D80BC009D2A07 /* Build configuration list for PBXNativeTarget "Deck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
