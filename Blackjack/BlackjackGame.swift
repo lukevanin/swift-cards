@@ -166,6 +166,9 @@ import Foundation
 import Deck
 
 
+// MARK: - Type Aliases
+
+
 typealias Card = StandardDeck.Card
 
 
@@ -175,14 +178,21 @@ typealias Denomination = UInt
 typealias Score = UInt
 
 
+// MARK: - Blackjack Error
+
+
 public enum BlackjackError: Error {
     case invalidHand
     case invalidCard
     case cardAlreadyRevealed
     case cannotSplitNonPair
-    case cannotSplitDifferentDenominations
+    case cannotSplitDifferentRanks
     case splitLimitReached
+    case cardNotRevealed
 }
+
+
+// MARK: - Player Card
 
 
 struct PlayerCard: Hashable {
@@ -210,7 +220,18 @@ extension PlayerCard: CustomStringConvertible {
 }
 
 
+// MARK: - Hand
+
+
 struct Hand: Equatable {
+    
+    private let aceScores: [Int : [Score]] = [
+        0: [0],
+        1: [1, 11],
+        2: [2, 11 + 1],
+        3: [3, 11 + 2],
+        4: [4, 11 + 3],
+    ]
     
     private(set) var cards: [PlayerCard] = []
     
@@ -223,6 +244,32 @@ struct Hand: Equatable {
     
     init(cards: [PlayerCard]) {
         self.cards = cards
+    }
+    
+    func score() throws -> Score {
+        // Remove aces into separate set
+        // Add all other cards
+        // Calculate permutations of scores for number of aces
+        try cards.forEach { card in
+            if card.face != .up {
+                throw BlackjackError.cardNotRevealed
+            }
+        }
+        let numberOfAces = cards.reduce(0) { result, card in
+            result + (card.card.rank == .ace ? 1 : 0)
+        }
+        let subtotal = cards.reduce(0) { result, card in
+            result + (card.card.rank != .ace ? card.card.rank.denomination : 0)
+        }
+        let aceScores = self.aceScores[numberOfAces]!
+        let scores = aceScores.map { score in
+            subtotal + score
+        }
+        precondition(scores.count > 0)
+        guard let score = scores.filter({ $0 <= 21 }).max() else {
+            return scores.min()!
+        }
+        return score
     }
     
     mutating func addCard(_ card: PlayerCard) {
@@ -240,8 +287,8 @@ struct Hand: Equatable {
         guard cards.count == 2 else {
             throw BlackjackError.cannotSplitNonPair
         }
-        guard cards[0].card.rank.denomination == cards[1].card.rank.denomination else {
-            throw BlackjackError.cannotSplitDifferentDenominations
+        guard cards[0].card.rank == cards[1].card.rank else {
+            throw BlackjackError.cannotSplitDifferentRanks
         }
         let newHandCard = cards.removeLast()
         return Hand(card: newHandCard)
@@ -253,6 +300,9 @@ extension Hand: CustomStringConvertible {
         "<HAND: [\(cards.map { String(describing: $0) }.joined(separator: ", "))]>"
     }
 }
+
+
+// MARK: - Player
 
 
 struct Player: Equatable {
@@ -299,6 +349,9 @@ extension Player: CustomStringConvertible {
 }
 
 
+// MARK: - Dealer
+
+
 struct Dealer: Equatable {
     
     private(set) var hand: Hand
@@ -327,6 +380,9 @@ extension Dealer: CustomStringConvertible {
 }
 
 
+// MARK: - Card Extensions
+
+
 extension Card.Rank {
     
     private static let denominations: [Card.Rank : Denomination] = [
@@ -350,6 +406,8 @@ extension Card.Rank {
     }
 }
 
+
+// MARK: - Blackjack
 
 
 struct Blackjack: Equatable {

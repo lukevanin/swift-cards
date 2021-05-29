@@ -139,6 +139,124 @@ final class BlackjackTests: XCTestCase {
         XCTAssertThrowsError(try subject.giveCardToPlayer(playerCard, hand: 1))
     }
     
+    // MARK: Score
+
+    func testScoreOneAceShouldEqualEleven() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 11)
+    }
+
+    func testScoreShouldFailWhenCardIsFaceDown() {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .down),
+            ]
+        )
+        XCTAssertThrowsError(try hand.score())
+    }
+
+    func testScoreAceAndTenShouldEqualTwentyOne() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 21)
+    }
+    
+    func testScoreTwoAcesShouldEqualTwelve() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 12)
+    }
+    
+    func testScoreThreeAcesShouldEqualThirteen() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .hearts), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 13)
+    }
+    
+    func testScoreFourAcesShouldEqualFourteen() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .hearts), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 14)
+    }
+    
+    func testScoreTenAndFourAcesShouldEqualFourteen() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ten, suite: .hearts), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .hearts), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 14)
+    }
+    
+    func testTwoTwosShouldEqualFour() {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .two, suite: .hearts), face: .up),
+                PlayerCard(card: Card(rank: .two, suite: .spades), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 4)
+    }
+    
+    func testTwoFivesShouldEqualTen() {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .five, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .five, suite: .hearts), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 10)
+    }
+    
+    func testTwoTensShouldEqualTwenty() throws {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ten, suite: .spades), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 20)
+
+    }
+
+    func testScoreTwoTensAndOneAceShouldEqualTwentyOne() {
+        let hand = Hand(
+            cards: [
+                PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                PlayerCard(card: Card(rank: .ten, suite: .spades), face: .up),
+                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+            ]
+        )
+        XCTAssertEqual(try hand.score(), 21)
+    }
+    
     // MARK: Denomination
     
     func testDenominations() {
@@ -178,6 +296,7 @@ final class BlackjackTests: XCTestCase {
             shoe: Shoe(),
             dealer: Dealer(),
             player: Player(
+                splitLimit: 1,
                 hands: [
                     Hand(cards: [playerCardA, playerCardB]),
                 ]
@@ -201,7 +320,7 @@ final class BlackjackTests: XCTestCase {
 
     func testSplitPlayerHandShouldFailWhenDenominationsDiffer() {
         let cardA = Card(rank: .jack, suite: .diamonds)
-        let cardB = Card(rank: .eight, suite: .hearts)
+        let cardB = Card(rank: .ten, suite: .hearts)
         let playerCardA = PlayerCard(card: cardA, face: .up)
         let playerCardB = PlayerCard(card: cardB, face: .up)
         var subject = Blackjack(
