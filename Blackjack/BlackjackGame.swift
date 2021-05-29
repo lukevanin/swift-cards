@@ -169,139 +169,205 @@ import Deck
 typealias Card = StandardDeck.Card
 
 
+typealias Denomination = UInt
+
+
 typealias Score = UInt
 
 
-enum ActionError: Error {
-    case notPermitted
-    case notImplemented
+public enum BlackjackError: Error {
+    case invalidHand
+    case invalidCard
+    case cardAlreadyRevealed
+    case cannotSplitNonPair
+    case cannotSplitDifferentDenominations
+    case splitLimitReached
 }
 
 
-protocol Action {
-    associatedtype Game
-    func canPerform(on game: Game) -> Bool
-    func perform(on game: Game) throws
-}
-
-
-//struct ShuffleShoeAction: Action {
-//
-//}
-
-
-struct DealCardToPlayerAction: Action {
-
-    func canPerform(on game: BlackjackGame) -> Bool {
-        return false
-    }
+struct PlayerCard: Hashable {
     
-    func perform(on game: BlackjackGame) throws {
-        throw ActionError.notImplemented
-    }
-}
-
-
-struct DealCardToDealerAction: Action {
-
-    func canPerform(on game: BlackjackGame) -> Bool {
-        return false
-    }
-    
-    func perform(on game: BlackjackGame) throws {
-        throw ActionError.notImplemented
-    }
-}
-
-
-//struct ReturnCardsToShoeAction: Action {
-//
-//}
-
-
-struct RevealDealerCardAction: Action {
-    
-    func canPerform(on game: BlackjackGame) -> Bool {
-        return false
-    }
-    
-    func perform(on game: BlackjackGame) throws {
-        throw ActionError.notImplemented
-    }
-}
-
-
-//struct RevealPlayerCardAction: Action {
-//
-//}
-//
-//
-//struct NextRoundAction: Action {
-//
-//}
-//
-//
-//struct SplitPlayerHandAction: Action {
-//
-//}
-//
-//
-//struct PlayerHitAction: Action {
-//
-//}
-//
-//
-//struct PlayerStandAction: Action {
-//
-//}
-//
-//
-//struct PlayerFoldAction: Action {
-//
-//}
-
-
-struct PlayerCard {
-    
-    enum Face {
+    enum Face: Hashable {
         case up
         case down
     }
     
     let card: Card
     var face: Face
+    
+    mutating func reveal() throws {
+        guard face == .down else {
+            throw BlackjackError.cardAlreadyRevealed
+        }
+        face = .up
+    }
+}
+
+extension PlayerCard: CustomStringConvertible {
+    var description: String {
+        "<\(card) (\(face == .up ? "U" : "D"))>"
+    }
 }
 
 
-struct Hand {
+struct Hand: Equatable {
     
-    var cards: [PlayerCard] = []
+    private(set) var cards: [PlayerCard] = []
+    
+    init() {
+    }
+    
+    init(card: PlayerCard) {
+        self.cards = [card]
+    }
+    
+    init(cards: [PlayerCard]) {
+        self.cards = cards
+    }
+    
+    mutating func addCard(_ card: PlayerCard) {
+        cards.append(card)
+    }
+    
+    mutating func revealCard(at index: Int) throws {
+        guard index >= 0 && index < cards.count else {
+            throw BlackjackError.invalidCard
+        }
+        try cards[index].reveal()
+    }
+    
+    mutating func split() throws -> Hand {
+        guard cards.count == 2 else {
+            throw BlackjackError.cannotSplitNonPair
+        }
+        guard cards[0].card.rank.denomination == cards[1].card.rank.denomination else {
+            throw BlackjackError.cannotSplitDifferentDenominations
+        }
+        let newHandCard = cards.removeLast()
+        return Hand(card: newHandCard)
+    }
+}
+
+extension Hand: CustomStringConvertible {
+    var description: String {
+        "<HAND: [\(cards.map { String(describing: $0) }.joined(separator: ", "))]>"
+    }
 }
 
 
-struct BlackjackGame {
+struct Player: Equatable {
     
-    struct Rules {
-        let numberOfCardPacks: Int
-        let maximumSplits: Int
+    let splitLimit: Int
+    private(set) var splits: Int
+    private(set) var hands: [Hand]
+    
+    init(splitLimit: Int = 0, splits: Int = 0, hands: [Hand] = [Hand()]) {
+        precondition(hands.count > 0)
+        self.hands = hands
+        self.splitLimit = splitLimit
+        self.splits = splits
     }
     
-    enum Turn {
-        case dealer
-        case player(_ hand: Int)
+    mutating func addCardToHand(_ card: PlayerCard, at hand: Int) throws {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        hands[hand].addCard(card)
     }
     
-    let rules: Rules
+    mutating func splitHand(_ hand: Int) throws {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        guard splits < splitLimit else {
+            throw BlackjackError.splitLimitReached
+        }
+        splits += 1
+        let newHand = try hands[hand].split()
+        hands.insert(newHand, at: hand + 1)
+    }
+}
+
+extension Player: CustomStringConvertible {
+    var description: String {
+        """
+        PLAYER:
+        Splits: \(splits) out of \(splitLimit)
+        Hands: [\(hands.map { String(describing: $0) }.joined(separator: "; "))]
+        """
+    }
+}
+
+
+struct Dealer: Equatable {
+    
+    private(set) var hand: Hand
+    
+    init() {
+        self.hand = Hand()
+    }
+    
+    init(hand: Hand) {
+        self.hand = hand
+    }
+    
+    mutating func addCard(_ card: PlayerCard) {
+        hand.addCard(card)
+    }
+    
+    mutating func revealCard(at index: Int) throws {
+        try hand.revealCard(at: index)
+    }
+}
+
+extension Dealer: CustomStringConvertible {
+    var description: String {
+        "<DEALER: \(hand)>"
+    }
+}
+
+
+extension Card.Rank {
+    
+    private static let denominations: [Card.Rank : Denomination] = [
+        .ace: 1,
+        .two: 2,
+        .three: 3,
+        .four: 4,
+        .five: 5,
+        .six: 6,
+        .seven: 7,
+        .eight: 8,
+        .nine: 9,
+        .ten: 10,
+        .jack: 10,
+        .queen: 10,
+        .king: 10,
+    ]
+
+    var denomination: Denomination {
+        Self.denominations[self]!
+    }
+}
+
+
+
+struct Blackjack: Equatable {
+    
     var shoe: Shoe<Card>
-    var turn: Turn = .dealer
-    var dealerHand: Hand = Hand()
-    var playerHands: [Hand] = [Hand()]
+    var dealer: Dealer
+    var player: Player
     
-    init(rules: Rules) {
-        self.rules = rules
-        self.shoe = Shoe(cards: Card.all, numberOfPacks: rules.numberOfCardPacks)
+    init(
+        shoe: Shoe<Card> = Shoe(cards: Card.all),
+        dealer: Dealer = Dealer(),
+        player: Player = Player()
+    ) {
+        self.shoe = shoe
+        self.dealer = dealer
+        self.player = player
     }
-    
+
     func playerScore(forHand hand: Int) -> Score {
         return 0
     }
@@ -310,11 +376,35 @@ struct BlackjackGame {
         return 0
     }
     
-    func canPerform<A>(action: A) -> Bool where A: Action {
-        return false
+    mutating func dealCard() throws -> Card {
+        return try shoe.deal()
     }
     
-    func perform<A>(action: A) throws where A: Action {
-        
+    mutating func giveCardToPlayer(_ card: PlayerCard, hand: Int) throws {
+        try player.addCardToHand(card, at: hand)
+    }
+    
+    mutating func splitPlayerHand(_ hand: Int) throws {
+        try player.splitHand(hand)
+    }
+    
+    mutating func giveCardToDealer(_ card: PlayerCard) {
+        dealer.addCard(card)
+    }
+    
+    mutating func revealDealerCard(at index: Int) throws {
+        try dealer.revealCard(at: index)
+    }
+}
+
+extension Blackjack: CustomStringConvertible {
+    
+    var description: String {
+        """
+        BLACKJACK:
+        \(shoe)
+        \(dealer)
+        \(player)
+        """
     }
 }

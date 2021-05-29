@@ -18,33 +18,28 @@ public enum ShoeError: Error {
 /// time until the shoe is empty. A placeholder card is inserted into the shoe. When the placeholder is dealt
 /// the shoe is reshuffled.
 ///
-public struct Shoe<Card> where Card: Hashable {
+public struct Shoe<Card>: Equatable where Card: Hashable {
     
     public var empty: Bool {
         cards.count == 0
     }
     
     private var cards: [Card] = []
-    private var random: RandomNumberGenerator
     
-    init(random: RandomNumberGenerator = SystemRandomNumberGenerator()) {
-        self.random = random
+    init() {
     }
 
-    init<S>(cards: S, numberOfPacks: Int, random: RandomNumberGenerator = SystemRandomNumberGenerator()) where S: Sequence, S.Element == Card {
-        self.random = random
+    init<S>(cards: S, numberOfPacks: Int) where S: Sequence, S.Element == Card {
         for _ in 0 ..< numberOfPacks {
             self.cards.append(contentsOf: cards)
         }
     }
     
-    init<S>(cards: S, random: RandomNumberGenerator = SystemRandomNumberGenerator()) where S: Sequence, S.Element == Card {
-        self.random = random
+    init<S>(cards: S) where S: Sequence, S.Element == Card {
         self.cards.append(contentsOf: cards)
     }
     
-    init(card: Card, random: RandomNumberGenerator = SystemRandomNumberGenerator()) {
-        self.random = random
+    init(card: Card) {
         self.cards.append(card)
     }
 
@@ -52,7 +47,7 @@ public struct Shoe<Card> where Card: Hashable {
         cards.append(card)
     }
     
-    mutating func shuffle() {
+    mutating func shuffle<R>(with randomNumberGenerator: inout R) where R: RandomNumberGenerator {
         // We use our own shuffle implementation instead of the one provided by
         // Swift:
         // - The implementation is subject to change, which makes it impossible
@@ -62,7 +57,7 @@ public struct Shoe<Card> where Card: Hashable {
         // RandomNumberGenerator.
         let count = cards.count
         for i in 0 ..< count {
-            let j = Int(random.next(upperBound: UInt(count)))
+            let j = Int(randomNumberGenerator.next(upperBound: UInt(count)))
             cards.swapAt(i, j)
         }
     }
@@ -72,5 +67,11 @@ public struct Shoe<Card> where Card: Hashable {
             throw ShoeError.empty
         }
         return cards.removeLast()
+    }
+}
+
+extension Shoe: CustomStringConvertible {
+    public var description: String {
+        "<SHOE: [\(cards.map { String(describing: $0) }.joined(separator: ", "))]>"
     }
 }

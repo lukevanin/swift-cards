@@ -94,6 +94,7 @@ final class ShoeTests: XCTestCase {
             Card(rank: .ace, suite: .spades),
             Card(rank: .eight, suite: .diamonds),
         ]
+        var randomNumberGenerator = SeededRandomNumberGenerator()
         // Run the test a few times to check that the results are consistent.
         for _ in 0 ..< 100 {
             // Use a seeded random number generator so that we can predict the
@@ -102,8 +103,8 @@ final class ShoeTests: XCTestCase {
             // ordering so that we can compare the outcome to an expected
             // result. We use a seemingly random but predictable sequence to
             // control the order.
-            var shoe = Shoe<StandardDeck.Card>(cards: cards, random: SeededRandomNumberGenerator())
-            shoe.shuffle()
+            var shoe = Shoe<StandardDeck.Card>(cards: cards)
+            shoe.shuffle(with: &randomNumberGenerator)
             for card in expectedCards {
                 let dealtCard = try shoe.deal()
                 XCTAssertEqual(card, dealtCard)
