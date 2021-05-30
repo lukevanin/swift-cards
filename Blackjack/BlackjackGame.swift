@@ -186,38 +186,11 @@ public enum BlackjackError: Error {
     case invalidCard
     case cardAlreadyRevealed
     case cannotSplitNonPair
-    case cannotSplitDifferentRanks
+    case cannotSplitDifferentDenominations
     case splitLimitReached
     case cardNotRevealed
 }
 
-
-// MARK: - Player Card
-
-
-struct PlayerCard: Hashable {
-    
-    enum Face: Hashable {
-        case up
-        case down
-    }
-    
-    let card: Card
-    var face: Face
-    
-    mutating func reveal() throws {
-        guard face == .down else {
-            throw BlackjackError.cardAlreadyRevealed
-        }
-        face = .up
-    }
-}
-
-extension PlayerCard: CustomStringConvertible {
-    var description: String {
-        "<\(card) (\(face == .up ? "U" : "D"))>"
-    }
-}
 
 
 // MARK: - Hand
@@ -287,8 +260,8 @@ struct Hand: Equatable {
         guard cards.count == 2 else {
             throw BlackjackError.cannotSplitNonPair
         }
-        guard cards[0].card.rank == cards[1].card.rank else {
-            throw BlackjackError.cannotSplitDifferentRanks
+        guard cards[0].card.rank.denomination == cards[1].card.rank.denomination else {
+            throw BlackjackError.cannotSplitDifferentDenominations
         }
         let newHandCard = cards.removeLast()
         return Hand(card: newHandCard)

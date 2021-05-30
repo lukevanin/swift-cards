@@ -17,6 +17,7 @@
 		FC1380E0265FEAED0019BF56 /* ShoeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380DF265FEAED0019BF56 /* ShoeTests.swift */; };
 		FC1380E2265FEB4E0019BF56 /* Shoe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380D8265FE5110019BF56 /* Shoe.swift */; };
 		FC1380E42660E8AC0019BF56 /* SeededRandomNumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */; };
+		FC1380E6266423D30019BF56 /* PlayerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E5266423D30019BF56 /* PlayerCard.swift */; };
 		FC7DF1A6265D80BC009D2A07 /* Deck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC7DF19D265D80BC009D2A07 /* Deck.framework */; };
 		FC7DF1AD265D80BC009D2A07 /* DeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1AC265D80BC009D2A07 /* DeckTests.swift */; };
 		FC7DF1AF265D80BC009D2A07 /* Deck.h in Headers */ = {isa = PBXBuildFile; fileRef = FC7DF19F265D80BC009D2A07 /* Deck.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -131,6 +132,7 @@
 		FC1380D8265FE5110019BF56 /* Shoe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shoe.swift; sourceTree = "<group>"; };
 		FC1380DF265FEAED0019BF56 /* ShoeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoeTests.swift; sourceTree = "<group>"; };
 		FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomNumberGenerator.swift; sourceTree = "<group>"; };
+		FC1380E5266423D30019BF56 /* PlayerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCard.swift; sourceTree = "<group>"; };
 		FC7DF19D265D80BC009D2A07 /* Deck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Deck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC7DF19F265D80BC009D2A07 /* Deck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Deck.h; sourceTree = "<group>"; };
 		FC7DF1A0265D80BC009D2A07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 			children = (
 				FC1380B6265FE2060019BF56 /* Blackjack.h */,
 				FC1380D6265FE2580019BF56 /* BlackjackGame.swift */,
+				FC1380E5266423D30019BF56 /* PlayerCard.swift */,
 				FC1380D8265FE5110019BF56 /* Shoe.swift */,
 				FC1380B7265FE2060019BF56 /* Info.plist */,
 			);
@@ -618,6 +621,7 @@
 			files = (
 				FC1380E2265FEB4E0019BF56 /* Shoe.swift in Sources */,
 				FC1380D7265FE2580019BF56 /* BlackjackGame.swift in Sources */,
+				FC1380E6266423D30019BF56 /* PlayerCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
