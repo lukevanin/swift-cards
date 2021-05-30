@@ -83,7 +83,7 @@ final class BlackjackTests: XCTestCase {
         XCTAssertEqual(subject, expected)
     }
     
-    func testRevealDealerCardShowTurnCardFaceUp() throws {
+    func testRevealDealerCardShouldTurnCardFaceUp() throws {
         let card = Card.all.randomElement()!
         var subject = Blackjack(
             shoe: Shoe(),

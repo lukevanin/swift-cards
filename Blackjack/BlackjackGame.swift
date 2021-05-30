@@ -316,14 +316,6 @@ struct Blackjack: Equatable {
         self.dealer = dealer
         self.player = player
     }
-
-    func playerScore(forHand hand: Int) -> Score {
-        return 0
-    }
-    
-    func dealerScore() -> Score {
-        return 0
-    }
     
     mutating func dealCard() throws -> Card {
         return try shoe.deal()
