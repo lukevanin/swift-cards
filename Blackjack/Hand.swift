@@ -8,6 +8,7 @@
 import Foundation
 
 
+#warning("TODO: Remove score and split logic specific to Blackjack")
 struct Hand: Equatable {
     
     private let aceScores: [Int : [Score]] = [
