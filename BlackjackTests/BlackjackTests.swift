@@ -161,7 +161,6 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(
                 splitLimit: 1,
-                splits: 1,
                 hands: [
                     Hand(card: playerCardA),
                     Hand(card: playerCardB),
@@ -198,7 +197,6 @@ final class BlackjackTests: XCTestCase {
                     dealer: Dealer(),
                     player: Player(
                         splitLimit: 1,
-                        splits: 1,
                         hands: [
                             Hand(card: playerCardA),
                             Hand(card: playerCardB),
@@ -273,8 +271,7 @@ final class BlackjackTests: XCTestCase {
             shoe: Shoe(),
             dealer: Dealer(),
             player: Player(
-                splitLimit: 1,
-                splits: 1,
+                splitLimit: 0,
                 hands: [
                     Hand(cards: [playerCardA, playerCardB])
                 ]
@@ -295,7 +292,6 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(
                 splitLimit: 2,
-                splits: 0,
                 hands: [
                     Hand(cards: [playerCardA, playerCardB]),
                 ]
@@ -306,7 +302,6 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(
                 splitLimit: 2,
-                splits: 1,
                 hands: [
                     Hand(card: playerCardA),
                     Hand(card: playerCardB),
@@ -318,7 +313,6 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(
                 splitLimit: 2,
-                splits: 1,
                 hands: [
                     Hand(card: playerCardA),
                     Hand(cards: [playerCardB, playerCardC]),
@@ -330,7 +324,6 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(
                 splitLimit: 2,
-                splits: 2,
                 hands: [
                     Hand(card: playerCardA),
                     Hand(card: playerCardB),

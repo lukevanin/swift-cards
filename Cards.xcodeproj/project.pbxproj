@@ -20,6 +20,7 @@
 		FC1380E6266423D30019BF56 /* PlayerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E5266423D30019BF56 /* PlayerCard.swift */; };
 		FC1380E8266424000019BF56 /* Hand.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E7266424000019BF56 /* Hand.swift */; };
 		FC1380EA266424ED0019BF56 /* PlayerCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380E9266424ED0019BF56 /* PlayerCardTests.swift */; };
+		FC1380EC266425EA0019BF56 /* HandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1380EB266425EA0019BF56 /* HandTests.swift */; };
 		FC7DF1A6265D80BC009D2A07 /* Deck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC7DF19D265D80BC009D2A07 /* Deck.framework */; };
 		FC7DF1AD265D80BC009D2A07 /* DeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7DF1AC265D80BC009D2A07 /* DeckTests.swift */; };
 		FC7DF1AF265D80BC009D2A07 /* Deck.h in Headers */ = {isa = PBXBuildFile; fileRef = FC7DF19F265D80BC009D2A07 /* Deck.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -137,6 +138,7 @@
 		FC1380E5266423D30019BF56 /* PlayerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCard.swift; sourceTree = "<group>"; };
 		FC1380E7266424000019BF56 /* Hand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hand.swift; sourceTree = "<group>"; };
 		FC1380E9266424ED0019BF56 /* PlayerCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCardTests.swift; sourceTree = "<group>"; };
+		FC1380EB266425EA0019BF56 /* HandTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandTests.swift; sourceTree = "<group>"; };
 		FC7DF19D265D80BC009D2A07 /* Deck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Deck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC7DF19F265D80BC009D2A07 /* Deck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Deck.h; sourceTree = "<group>"; };
 		FC7DF1A0265D80BC009D2A07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 			children = (
 				FC1380C6265FE21C0019BF56 /* BlackjackTests.swift */,
 				FC1380E9266424ED0019BF56 /* PlayerCardTests.swift */,
+				FC1380EB266425EA0019BF56 /* HandTests.swift */,
 				FC1380DF265FEAED0019BF56 /* ShoeTests.swift */,
 				FC1380E32660E8AC0019BF56 /* SeededRandomNumberGenerator.swift */,
 				FC1380C8265FE21C0019BF56 /* Info.plist */,
@@ -636,6 +639,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC1380EC266425EA0019BF56 /* HandTests.swift in Sources */,
 				FC1380E0265FEAED0019BF56 /* ShoeTests.swift in Sources */,
 				FC1380C7265FE21C0019BF56 /* BlackjackTests.swift in Sources */,
 				FC1380EA266424ED0019BF56 /* PlayerCardTests.swift in Sources */,

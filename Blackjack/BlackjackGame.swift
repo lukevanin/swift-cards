@@ -199,14 +199,12 @@ public enum BlackjackError: Error {
 struct Player: Equatable {
     
     let splitLimit: Int
-    private(set) var splits: Int
     private(set) var hands: [Hand]
     
-    init(splitLimit: Int = 0, splits: Int = 0, hands: [Hand] = [Hand()]) {
+    init(splitLimit: Int = 0, hands: [Hand] = [Hand()]) {
         precondition(hands.count > 0)
         self.hands = hands
         self.splitLimit = splitLimit
-        self.splits = splits
     }
     
     mutating func addCardToHand(_ card: PlayerCard, at hand: Int) throws {
@@ -220,12 +218,14 @@ struct Player: Equatable {
         guard hand >= 0 && hand < hands.count else {
             throw BlackjackError.invalidHand
         }
-        guard splits < splitLimit else {
+        guard hands.count <= splitLimit else {
             throw BlackjackError.splitLimitReached
         }
-        splits += 1
-        let newHand = try hands[hand].split()
-        hands.insert(newHand, at: hand + 1)
+        let splitHands = try hands[hand].split()
+        let prefix = hands.prefix(upTo: hand)
+        let middle = [splitHands.0, splitHands.1]
+        let suffix = hands.suffix(from: hand + 1)
+        hands = prefix + middle + suffix
     }
 }
 
@@ -233,7 +233,7 @@ extension Player: CustomStringConvertible {
     var description: String {
         """
         PLAYER:
-        Splits: \(splits) out of \(splitLimit)
+        Splits: \(hands.count - 1) out of \(splitLimit)
         Hands: [\(hands.map { String(describing: $0) }.joined(separator: "; "))]
         """
     }
@@ -294,6 +294,57 @@ extension Card.Rank {
 
     var denomination: Denomination {
         Self.denominations[self]!
+    }
+}
+
+
+// MARK: - Hand
+
+extension Hand {
+    
+    private static let aceScores: [Int : [Score]] = [
+        0: [0],
+        1: [1, 11],
+        2: [2, 11 + 1],
+        3: [3, 11 + 2],
+        4: [4, 11 + 3],
+    ]
+    
+    func score() throws -> Score {
+        // Remove aces into separate set
+        // Add all other cards
+        // Calculate permutations of scores for number of aces
+        try cards.forEach { card in
+            if card.face != .up {
+                throw BlackjackError.cardNotRevealed
+            }
+        }
+        let numberOfAces = cards.reduce(0) { result, card in
+            result + (card.card.rank == .ace ? 1 : 0)
+        }
+        let subtotal = cards.reduce(0) { result, card in
+            result + (card.card.rank != .ace ? card.card.rank.denomination : 0)
+        }
+        let aceScores = Self.aceScores[numberOfAces]!
+        let scores = aceScores.map { score in
+            subtotal + score
+        }
+        precondition(scores.count > 0)
+        guard let score = scores.filter({ $0 <= 21 }).max() else {
+            return scores.min()!
+        }
+        return score
+    }
+    
+    func split() throws -> (Hand, Hand) {
+        let cards = self.cards
+        guard cards.count == 2 else {
+            throw BlackjackError.cannotSplitNonPair
+        }
+        guard cards[0].card.rank.denomination == cards[1].card.rank.denomination else {
+            throw BlackjackError.cannotSplitDifferentDenominations
+        }
+        return (Hand(card: cards[0]), Hand(card: cards[1]))
     }
 }
 
