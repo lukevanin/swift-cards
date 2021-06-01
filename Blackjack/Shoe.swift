@@ -47,6 +47,10 @@ public struct Shoe<Card>: Equatable where Card: Hashable {
         cards.append(card)
     }
     
+    mutating func add(cards: [Card]) {
+        self.cards.append(contentsOf: cards)
+    }
+    
     mutating func shuffle<R>(with randomNumberGenerator: inout R) where R: RandomNumberGenerator {
         // We use our own shuffle implementation instead of the one provided by
         // Swift:

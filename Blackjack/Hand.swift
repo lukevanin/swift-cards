@@ -13,20 +13,27 @@ enum HandError: Error {
 }
 
 
-#warning("TODO: Remove score and split logic specific to Blackjack")
 struct Hand: Equatable {
     
+    private(set) var bet: Chip
     private(set) var cards: [PlayerCard] = []
     
-    init() {
+    init(bet: Chip = 0) {
+        self.bet = bet
     }
     
-    init(card: PlayerCard) {
+    init(bet: Chip = 0, card: PlayerCard) {
+        self.bet = bet
         self.cards = [card]
     }
     
-    init(cards: [PlayerCard]) {
+    init(bet: Chip = 0, cards: [PlayerCard]) {
+        self.bet = bet
         self.cards = cards
+    }
+    
+    mutating func increaseBet(_ amount: Chip) {
+        bet += amount
     }
     
     mutating func addCard(_ card: PlayerCard) {
@@ -39,10 +46,16 @@ struct Hand: Equatable {
         }
         try cards[index].reveal()
     }
+    
+    mutating func returnCards() -> [Card] {
+        let output = cards.map { $0.card }
+        cards.removeAll()
+        return output
+    }
 }
 
 extension Hand: CustomStringConvertible {
     var description: String {
-        "<HAND: [\(cards.map { String(describing: $0) }.joined(separator: ", "))]>"
+        "<HAND: Bet: \(bet) Cards: [\(cards.map { String(describing: $0) }.joined(separator: ", "))]>"
     }
 }

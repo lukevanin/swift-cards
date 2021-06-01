@@ -23,5 +23,4 @@ final class PlayerCardTests: XCTestCase {
         var subject = PlayerCard(card: card, face: .up)
         XCTAssertThrowsError(try subject.reveal())
     }
-
 }
