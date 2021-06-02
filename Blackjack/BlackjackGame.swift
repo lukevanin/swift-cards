@@ -211,6 +211,7 @@ public enum BlackjackError: Error {
     case cardNotRevealed
     case insufficientFunds
     case alreadyPlaying
+    case overInsurance
 }
 
 
@@ -291,14 +292,6 @@ extension Card.Rank {
         .king: 10,
     ]
     
-    private static let blackjackRanks: [Card.Rank] = [
-        .ace,
-        .ten,
-        .jack,
-        .queen,
-        .king
-    ]
-    
     private static let tenRanks: [Card.Rank] = [
         .ten,
         .jack,
@@ -313,9 +306,9 @@ extension Card.Rank {
     var isTen: Bool {
         Self.tenRanks.contains(self)
     }
-
-    var isBlackjack: Bool {
-        Self.blackjackRanks.contains(self)
+    
+    var isAce: Bool {
+        self == .ace
     }
 }
 
@@ -339,10 +332,46 @@ struct Blackjack: Equatable {
         self.player = player
     }
     
-//    func startingOver() {
-//        shoe.add(cards: dealer.returnCards())
-//        shoe.add(cards: player.returnCards())
-//    }
+    mutating func takePlayerBet(hand: Int) throws {
+        guard hand >= 0 && hand < player.hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let amount = try player.forfeitBet(hand: hand)
+        dealer.deposit(amount: amount)
+    }
+    
+    mutating func takePlayerInsurance(hand: Int) throws {
+        guard hand >= 0 && hand < player.hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let amount = try player.forfeitInsurance(hand: hand)
+        dealer.deposit(amount: amount)
+    }
+
+    mutating func buyInsurance(amount: Chip, hand: Int) throws {
+        guard hand >= 0 && hand < player.hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let bet = player.hands[hand].bet
+        let insurance = player.hands[hand].insurance
+        #warning("TODO: Configure insurance payout ratio")
+        let maximumInsurance = Chip(floor(Double(bet) / 2))
+        guard insurance + amount <= maximumInsurance else {
+            throw BlackjackError.overInsurance
+        }
+        try player.buyInsurance(amount: amount, hand: hand)
+    }
+    
+    mutating func awardInsurance(hand: Int, ratio: Ratio) throws {
+        guard hand >= 0 && hand < player.hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let insurance = player.hands[hand].insurance
+        let payout = ratio.multiply(by: insurance)
+        try dealer.withdraw(amount: payout)
+        player.deposit(amount: payout)
+        try player.returnInsurance(hand: hand)
+    }
     
     mutating func awardPlayer(hand: Int, ratio: Ratio) throws {
         guard hand >= 0 && hand < player.hands.count else {
@@ -439,7 +468,7 @@ struct BetState: Equatable {
         try game.dealCardToPlayer(hand: 0, face: .up)
         try game.dealCardToDealer(face: .down)
 
-        let dealerBlackjackCard = game.dealer.hand.cards[0].card.rank.isBlackjack
+        let dealerBlackjackCard = game.dealer.hand.cards[0].card.rank.isAce
         let playerBlackjack = game.player.hands[0].blackjack
         
         switch (dealerBlackjackCard, playerBlackjack) {
@@ -479,12 +508,33 @@ struct InsuranceState: Equatable {
  
     let game: Blackjack
     
-    func pass() throws -> BlackjackState {
-        fatalError("not implemented")
+    func passInsurance() throws -> BlackjackState {
+        return try revealHoleCard(game: game)
     }
     
-    func buyInsurance() throws -> BlackjackState {
-        fatalError("not implemented")
+    func buyInsurance(amount: Chip) throws -> BlackjackState {
+        var game = game
+        try game.buyInsurance(amount: amount, hand: 0)
+        return try revealHoleCard(game: game)
+    }
+    
+    private func revealHoleCard(game: Blackjack) throws -> BlackjackState {
+        var game = game
+        try game.revealDealerCard(at: 1)
+        if game.dealer.hand.blackjack {
+            // Dealer has blackjack. Player loses.
+            // Player bought insurance and dealer has blackjack. Take the
+            // players bet. Award the players insurance at 2:1.
+            try game.takePlayerBet(hand: 0)
+            try game.awardInsurance(hand: 0, ratio: Ratio(1, 2))
+            return .end(EndState(outcome: .lose, game: game))
+        }
+        else {
+            // Dealer does not have blackjack. Take the insurance and
+            // continue play.
+            try game.takePlayerInsurance(hand: 0)
+            return .player(PlayerState(hand: 0, game: game))
+        }
     }
 }
 

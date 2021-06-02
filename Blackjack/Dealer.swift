@@ -21,7 +21,11 @@ struct Dealer<Card>: Equatable where Card: Hashable {
     mutating func withdraw(amount: Chip) throws {
         try bank.withdraw(amount: amount)
     }
-    
+
+    mutating func deposit(amount: Chip) {
+        bank.deposit(amount: amount)
+    }
+
     func addingCard(_ card: PlayerCard<Card>) -> Dealer {
         Dealer(bank: bank, hand: hand.addingCard(card))
     }

@@ -16,24 +16,50 @@ enum HandError: Error {
 struct Hand<Card>: Equatable where Card: Hashable {
     
     private(set) var bet: Chip
+    private(set) var insurance: Chip
     private(set) var cards: [PlayerCard<Card>] = []
     
-    init(bet: Chip = 0) {
+    init(bet: Chip = 0, insurance: Chip = 0) {
         self.bet = bet
+        self.insurance = insurance
     }
     
-    init(bet: Chip = 0, card: PlayerCard<Card>) {
+    init(bet: Chip = 0, insurance: Chip = 0, card: PlayerCard<Card>) {
         self.bet = bet
+        self.insurance = insurance
         self.cards = [card]
     }
     
-    init(bet: Chip = 0, cards: [PlayerCard<Card>]) {
+    init(bet: Chip = 0, insurance: Chip = 0, cards: [PlayerCard<Card>]) {
         self.bet = bet
+        self.insurance = insurance
         self.cards = cards
+    }
+    
+    mutating func forfeitBet() -> Chip {
+        let amount = bet
+        bet = 0
+        return amount
     }
     
     mutating func increaseBet(_ amount: Chip) {
         bet += amount
+    }
+    
+    mutating func forfeitInsurance() -> Chip {
+        let amount = insurance
+        insurance = 0
+        return amount
+    }
+
+    mutating func addInsurance(amount: Chip) throws {
+        insurance += amount
+    }
+    
+    mutating func returnInsurance() -> Chip {
+        let amount = insurance
+        insurance = 0
+        return amount
     }
     
     mutating func addCard(_ card: PlayerCard<Card>) {

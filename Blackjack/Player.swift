@@ -32,6 +32,20 @@ struct Player: Equatable {
     mutating func deposit(amount: Chip) {
         bank.deposit(amount: amount)
     }
+    
+    mutating func forfeitBet(hand: Int) throws -> Chip {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        return hands[hand].forfeitBet()
+    }
+    
+    mutating func forfeitInsurance(hand: Int) throws -> Chip {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        return hands[hand].forfeitInsurance()
+    }
 
     mutating func placeBet(amount: Chip) throws {
         guard hands.count == 0 else {
@@ -86,6 +100,22 @@ struct Player: Equatable {
             allCards.append(contentsOf: cards)
         }
         return Array(allCards)
+    }
+    
+    mutating func buyInsurance(amount: Chip, hand: Int) throws {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        try bank.withdraw(amount: amount)
+        try hands[hand].addInsurance(amount: amount)
+    }
+    
+    mutating func returnInsurance(hand: Int) throws {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let amount = hands[hand].returnInsurance()
+        bank.deposit(amount: amount)
     }
 }
 
