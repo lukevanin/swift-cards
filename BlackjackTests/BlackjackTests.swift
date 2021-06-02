@@ -19,10 +19,10 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player()
         )
-        XCTAssertThrowsError(try subject.dealCard())
+        XCTAssertThrowsError(try subject.dealCardToDealer(face: .up))
     }
     
-    func testDealCardShouldReturnACard() throws {
+    func testDealCardToDealer_ShouldAddCardToDealersHand() throws {
         let card = Card.all.randomElement()!
         var subject = Blackjack(
             shoe: Shoe(card: card),
@@ -32,10 +32,9 @@ final class BlackjackTests: XCTestCase {
         let expected = Blackjack(
             shoe: Shoe(),
             dealer: Dealer(),
-            player: Player()
+            player: Player(hand: Hand(card: PlayerCard(card: card, face: .up)))
         )
-        let dealtCard = try subject.dealCard()
-        XCTAssertEqual(dealtCard, card)
+        try subject.dealCardToDealer(face: .up)
         XCTAssertEqual(subject, expected)
     }
     
@@ -99,19 +98,18 @@ final class BlackjackTests: XCTestCase {
             dealer: Dealer(),
             player: Player(hands: [Hand(card: playerCard)])
         )
-        try subject.giveCardToPlayer(playerCard, hand: 0)
+        try subject.dealCardToPlayer(hand: 0, face: .up)
         XCTAssertEqual(subject, expected)
     }
     
     func testGiveCardToPlayerShouldFailWhenHandIsOutOfRange() throws {
         let card = Card.all.randomElement()!
-        let playerCard = PlayerCard(card: card, face: .up)
         var subject = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: card),
             dealer: Dealer(),
             player: Player()
         )
-        XCTAssertThrowsError(try subject.giveCardToPlayer(playerCard, hand: 1))
+        XCTAssertThrowsError(try subject.dealCardToPlayer(hand: 1, face: .up))
     }
     
     // MARK: Place Bet
@@ -385,7 +383,7 @@ final class BlackjackTests: XCTestCase {
         )
         try subject.splitPlayerHand(0)
         XCTAssertEqual(subject, expected1)
-        try subject.giveCardToPlayer(playerCardC, hand: 1)
+        try subject.dealCardToPlayer(hand: 1, face: .up)
         XCTAssertEqual(subject, expected2)
         try subject.splitPlayerHand(1)
         XCTAssertEqual(subject, expected3)

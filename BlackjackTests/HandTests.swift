@@ -15,7 +15,7 @@ final class HandTests: XCTestCase {
     func testAddCardIntoEmptyHandShouldInsertCardIntoHand() throws {
         let card = Card.all.randomElement()!
         let playerCard = PlayerCard(card: card, face: .up)
-        var subject = Hand()
+        var subject = Hand<Card>()
         let expected = Hand(card: playerCard)
         subject.addCard(playerCard)
         XCTAssertEqual(subject, expected)
@@ -42,7 +42,7 @@ final class HandTests: XCTestCase {
     func testRevealCardShouldFailWhenCardIsAlreadyFaceUp() throws {
         let card = Card.all.randomElement()!
         let playerCard = PlayerCard(card: card, face: .up)
-        var subject = Hand()
+        var subject = Hand<Card>()
         subject.addCard(playerCard)
         XCTAssertThrowsError(try subject.revealCard(at: 1))
     }
@@ -50,7 +50,7 @@ final class HandTests: XCTestCase {
     func testRevealCardShouldTurnCardFaceUp() throws {
         let card = Card.all.randomElement()!
         let playerCard = PlayerCard(card: card, face: .down)
-        var subject = Hand()
+        var subject = Hand<Card>()
         let expected = Hand(card: playerCard)
         subject.addCard(playerCard)
         XCTAssertEqual(subject, expected)
@@ -59,8 +59,8 @@ final class HandTests: XCTestCase {
     // MARK: Increase Bet
     
     func testIncreaseBetShouldAddAmountToBet() {
-        var subject = Hand(bet: 1)
-        let expected = Hand(bet: 12)
+        var subject = Hand<Card>(bet: 1)
+        let expected = Hand<Card>(bet: 12)
         subject.increaseBet(11)
         XCTAssertEqual(subject, expected)
     }

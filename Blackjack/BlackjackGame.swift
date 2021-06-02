@@ -172,10 +172,30 @@ import Deck
 typealias Card = StandardDeck.Card
 
 
+typealias BlackjackCard = PlayerCard<Card>
+
+
 typealias Denomination = UInt
 
 
 typealias Score = UInt
+
+
+struct Ratio {
+    let numerator: Int
+    let denominator: Int
+    
+    init(_ numerator: Int, _ denominator: Int) {
+        self.numerator = numerator
+        self.denominator = denominator
+    }
+    
+    func multiply(by amount: Chip) -> Chip {
+        #warning("TODO: Use fractional calculation instead of floating point")
+        let unrounded = (Double(amount) / Double(numerator)) * Double(denominator)
+        return Chip(ceil(unrounded))
+    }
+}
 
 
 // MARK: - Blackjack Error
@@ -190,12 +210,13 @@ public enum BlackjackError: Error {
     case splitLimitReached
     case cardNotRevealed
     case insufficientFunds
+    case alreadyPlaying
 }
 
 
 // MARK: - Hand
 
-extension Hand {
+extension Hand where Card == StandardDeck.Card {
     
     private static let aceScores: [Int : [Score]] = [
         0: [0],
@@ -230,6 +251,21 @@ extension Hand {
         }
         return score
     }
+    
+    ///
+    /// Blackjack hand:
+    /// - Two cards
+    /// - One card must be an Ace
+    /// - One card must be a Ten, Jack, Queen, or King
+    ///
+    var blackjack: Bool {
+        guard cards.count == 2 else {
+            return false
+        }
+        let a = cards[0].card.rank
+        let b = cards[1].card.rank
+        return (a == .ace && b.isTen) || (a.isTen && b == .ace)
+    }
 }
 
 
@@ -254,9 +290,32 @@ extension Card.Rank {
         .queen: 10,
         .king: 10,
     ]
+    
+    private static let blackjackRanks: [Card.Rank] = [
+        .ace,
+        .ten,
+        .jack,
+        .queen,
+        .king
+    ]
+    
+    private static let tenRanks: [Card.Rank] = [
+        .ten,
+        .jack,
+        .queen,
+        .king
+    ]
 
     var denomination: Denomination {
         Self.denominations[self]!
+    }
+    
+    var isTen: Bool {
+        Self.tenRanks.contains(self)
+    }
+
+    var isBlackjack: Bool {
+        Self.blackjackRanks.contains(self)
     }
 }
 
@@ -267,12 +326,12 @@ extension Card.Rank {
 struct Blackjack: Equatable {
     
     var shoe: Shoe<Card>
-    var dealer: Dealer
+    var dealer: Dealer<Card>
     var player: Player
     
     init(
         shoe: Shoe<Card>,
-        dealer: Dealer,
+        dealer: Dealer<Card>,
         player: Player
     ) {
         self.shoe = shoe
@@ -280,41 +339,65 @@ struct Blackjack: Equatable {
         self.player = player
     }
     
-    mutating func startOver() {
-        shoe.add(cards: dealer.returnCards())
-        shoe.add(cards: player.returnCards())
+//    func startingOver() {
+//        shoe.add(cards: dealer.returnCards())
+//        shoe.add(cards: player.returnCards())
+//    }
+    
+    mutating func awardPlayer(hand: Int, ratio: Ratio) throws {
+        guard hand >= 0 && hand < player.hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        let bet = player.hands[hand].bet
+        let payout = ratio.multiply(by: bet)
+        try dealer.withdraw(amount: payout)
+        player.deposit(amount: payout)
     }
     
-    func placeBet(amount: Chip) throws -> Blackjack {
-        Blackjack(
-            shoe: shoe,
-            dealer: dealer,
-            player: try player.placeBet(amount: amount)
-        )
+    mutating func placeBet(amount: Chip) throws {
+        try player.placeBet(amount: amount)
     }
     
-    mutating func dealCard() throws -> Card {
-        return try shoe.deal()
+    mutating func dealCardToPlayer(hand: Int, face: PlayerCard<Card>.Face) throws {
+        let card = try shoe.dealCard(face: face)
+        try player.addCard(card, toHand: hand)
     }
     
-    mutating func giveCardToPlayer(_ card: PlayerCard, hand: Int) throws {
-        try player.addCardToHand(card, at: hand)
+    mutating func dealCardToDealer(face: PlayerCard<Card>.Face) throws {
+        let card = try shoe.dealCard(face: face)
+        try dealer.addCard(card)
     }
-    
+
+    #warning("TODO: Remove")
     mutating func splitPlayerHand(_ hand: Int) throws {
         try player.splitHand(hand)
     }
     
-    mutating func giveCardToDealer(_ card: PlayerCard) {
+    #warning("TODO: Remove")
+    mutating func giveCardToDealer(_ card: PlayerCard<Card>) {
         dealer.addCard(card)
     }
     
+    #warning("TODO: Remove")
     mutating func revealDealerCard(at index: Int) throws {
         try dealer.revealCard(at: index)
     }
     
+    #warning("TODO: Remove")
     mutating func doubleDown(hand: Int) throws {
         try player.doubleDown(hand: hand)
+    }
+}
+
+extension Blackjack: CustomStringConvertible {
+
+    var description: String {
+        """
+        BLACKJACK:
+        \(shoe)
+        \(dealer)
+        \(player)
+        """
     }
 }
 
@@ -322,46 +405,95 @@ struct Blackjack: Equatable {
 // MARK: - State
 
 
+enum Outcome: Equatable {
+    case push
+    case surrender
+    case win
+    case lose
+}
+
+
 enum BlackjackState: Equatable {
     case bet(BetState)
-    case deal(DealState)
-//    case playersTurn(PlayerState)
-//    case dealersTurn(DealerState)
-//    case dealerWins(DealerWinsState)
-//    case playerWins(PlayerWinsState)
-//    case surrender(SurrenderState)
+    case insurance(InsuranceState)
+    case player(PlayerState)
+    case end(EndState)
 }
 
 
 struct BetState: Equatable {
     
-    var game: Blackjack
-    
-    mutating func enter() {
-        game.startOver()
-    }
-    
+    let game: Blackjack
+
+    ///
+    /// Outcomes:
+    /// - Dealer has an ace or ten: Insurance
+    /// - Player has blackjack and dealer does not have an ace or a ten: Player wins
+    /// - Player does not have a blackjack and dealer does not have an ace or ten: Play
+    ///
     func placeBet(amount: Chip) throws -> BlackjackState {
-        .deal(DealState(
-            game: try game.placeBet(amount: amount)
-        ))
-    }
-}
+        var game = game
+        try game.placeBet(amount: amount)
+        try game.dealCardToPlayer(hand: 0, face: .up)
+        try game.dealCardToDealer(face: .up)
+        try game.dealCardToPlayer(hand: 0, face: .up)
+        try game.dealCardToDealer(face: .down)
 
-
-struct DealState: Equatable {
-    
-    var game: Blackjack
-    
-    mutating func enter() {
+        let dealerBlackjackCard = game.dealer.hand.cards[0].card.rank.isBlackjack
+        let playerBlackjack = game.player.hands[0].blackjack
         
+        switch (dealerBlackjackCard, playerBlackjack) {
+        
+        case (true, true):
+            // Dealer has a blackjack card. Player has blackjack.
+            try game.revealDealerCard(at: 1)
+            let dealerBlackjack = game.dealer.hand.blackjack
+            if dealerBlackjack {
+                // Dealer and player have blackjack.
+                return .end(EndState(outcome: .push, game: game))
+            }
+            else {
+                // Only player has blackjack.
+                try game.awardPlayer(hand: 0, ratio: Ratio(2, 3))
+                return .end(EndState(outcome: .win, game: game))
+            }
+            
+        case (true, false):
+            // Dealer has blackjack card.
+            return .insurance(InsuranceState(game: game))
+
+        case (false, true):
+            // Only player has blackjack.
+            try game.awardPlayer(hand: 0, ratio: Ratio(2, 3))
+            return .end(EndState(outcome: .win, game: game))
+
+        case (false, false):
+            // No blackjack.
+            return .player(PlayerState(hand: 0, game: game))
+        }
     }
 }
 
-//struct PlayerState {
-//
-//    let hand: Int
-//
+
+struct InsuranceState: Equatable {
+ 
+    let game: Blackjack
+    
+    func pass() throws -> BlackjackState {
+        fatalError("not implemented")
+    }
+    
+    func buyInsurance() throws -> BlackjackState {
+        fatalError("not implemented")
+    }
+}
+
+
+struct PlayerState: Equatable {
+
+    let hand: Int
+    let game: Blackjack
+
 //    func split() throws -> BlackjackState {
 //
 //    }
@@ -385,7 +517,18 @@ struct DealState: Equatable {
 //    func surrender() throws -> BlackjackState {
 //
 //    }
-//}
+}
+
+
+struct EndState: Equatable {
+    
+    let outcome: Outcome
+    let game: Blackjack
+    
+    func playAgain() throws -> BlackjackState {
+        fatalError("not implemented")
+    }
+}
 
 
 //struct DealerState {
@@ -435,14 +578,3 @@ struct DealState: Equatable {
 //    }
 //}
 
-//extension Blackjack: CustomStringConvertible {
-//
-//    var description: String {
-//        """
-//        BLACKJACK:
-//        \(shoe)
-//        \(dealer)
-//        \(player)
-//        """
-//    }
-//}

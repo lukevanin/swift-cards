@@ -66,11 +66,12 @@ public struct Shoe<Card>: Equatable where Card: Hashable {
         }
     }
     
-    mutating func deal() throws -> Card {
+    mutating func dealCard(face: PlayerCard<Card>.Face) throws -> PlayerCard<Card> {
         guard cards.count > 0 else {
             throw ShoeError.empty
         }
-        return cards.removeLast()
+        let card = cards.removeLast()
+        return PlayerCard(card: card, face: face)
     }
 }
 

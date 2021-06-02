@@ -7,8 +7,10 @@
 
 import Foundation
 
+import Deck
 
-struct PlayerCard: Hashable {
+
+struct PlayerCard<Card>: Hashable where Card: Hashable {
     
     enum Face: Hashable {
         case up

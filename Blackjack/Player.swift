@@ -11,23 +11,37 @@ import Foundation
 struct Player: Equatable {
     
     private(set) var bank: Bank
-    private(set) var hands: [Hand]
-    
-    init(bank: Bank = Bank(), hands: [Hand] = [Hand()]) {
+    private(set) var hands: [Hand<Card>]
+
+    init(bank: Bank = Bank()) {
+        self.bank = bank
+        self.hands = []
+    }
+
+    init(bank: Bank = Bank(), hand: Hand<Card>) {
+        self.bank = bank
+        self.hands = [hand]
+    }
+
+    init(bank: Bank = Bank(), hands: [Hand<Card>]) {
+        precondition(hands.count > 0)
         self.bank = bank
         self.hands = hands
     }
     
-    func placeBet(amount: Chip) throws -> Player {
-        Player(
-            bank: try bank.withdrawing(amount: amount),
-            hands: [
-                Hand(bet: amount)
-            ]
-        )
+    mutating func deposit(amount: Chip) {
+        bank.deposit(amount: amount)
+    }
+
+    mutating func placeBet(amount: Chip) throws {
+        guard hands.count == 0 else {
+            throw BlackjackError.alreadyPlaying
+        }
+        try bank.withdraw(amount: amount)
+        hands.append(Hand(bet: amount))
     }
     
-    mutating func addCardToHand(_ card: PlayerCard, at hand: Int) throws {
+    mutating func addCard(_ card: BlackjackCard, toHand hand: Int) throws {
         guard hand >= 0 && hand < hands.count else {
             throw BlackjackError.invalidHand
         }
@@ -46,7 +60,7 @@ struct Player: Equatable {
             throw BlackjackError.cannotSplitDifferentDenominations
         }
         let amount = pair.bet
-        try bank.withdrawing(amount: amount)
+        try bank.withdraw(amount: amount)
         let split = [
             Hand(bet: amount, card: pair.cards[0]),
             Hand(bet: amount, card: pair.cards[1]),
@@ -61,7 +75,7 @@ struct Player: Equatable {
             throw BlackjackError.invalidHand
         }
         let amount = hands[hand].bet
-        try bank.withdrawing(amount: amount)
+        try bank.withdraw(amount: amount)
         hands[hand].increaseBet(amount)
     }
     

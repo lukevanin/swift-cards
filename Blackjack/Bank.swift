@@ -24,18 +24,14 @@ struct Bank: Equatable {
         self.balance = balance
     }
     
-    func depositing(amount: Chip) -> Bank {
-        Bank(
-            balance: balance + amount
-        )
+    mutating func deposit(amount: Chip) {
+        balance += amount
     }
     
-    func withdrawing(amount: Chip) throws -> Bank {
+    mutating func withdraw(amount: Chip) throws {
         guard balance >= amount else {
             throw BankError.insufficientFunds
         }
-        return Bank(
-            balance: balance - amount
-        )
+        balance -= amount
     }
 }

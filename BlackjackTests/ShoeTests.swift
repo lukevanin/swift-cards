@@ -36,8 +36,8 @@ final class ShoeTests: XCTestCase {
         let expectedCards = cards.reversed()
         var shoe = Shoe(cards: cards)
         for expectedCard in expectedCards {
-            let dealtCard = try shoe.deal()
-            XCTAssertEqual(dealtCard, expectedCard)
+            let dealtCard = try shoe.dealCard(face: .up)
+            XCTAssertEqual(dealtCard, PlayerCard(card: expectedCard, face: .up))
         }
     }
 
@@ -52,7 +52,7 @@ final class ShoeTests: XCTestCase {
             var shoe = Shoe<StandardDeck.Card>(cards: Card.all, numberOfPacks: i)
             var count = 0
             while shoe.empty == false {
-                let _ = try shoe.deal()
+                let _ = try shoe.dealCard(face: .up)
                 count += 1
             }
             XCTAssertEqual(count, i * 52)
@@ -67,9 +67,9 @@ final class ShoeTests: XCTestCase {
         let expectedCards = cards.reversed()
         var shoe = Shoe<StandardDeck.Card>()
         cards.forEach { shoe.add(card: $0) }
-        for card in expectedCards {
-            let dealtCard = try shoe.deal()
-            XCTAssertEqual(card, dealtCard)
+        for expectedCard in expectedCards {
+            let dealtCard = try shoe.dealCard(face: .up)
+            XCTAssertEqual(dealtCard, PlayerCard(card: expectedCard, face: .up))
         }
     }
 
@@ -105,10 +105,9 @@ final class ShoeTests: XCTestCase {
             var randomNumberGenerator = SeededRandomNumberGenerator()
             var shoe = Shoe<StandardDeck.Card>(cards: cards)
             shoe.shuffle(with: &randomNumberGenerator)
-            for card in expectedCards {
-                let dealtCard = try shoe.deal()
-                print(dealtCard)
-                XCTAssertEqual(card, dealtCard)
+            for expectedCard in expectedCards {
+                let dealtCard = try shoe.dealCard(face: .up)
+                XCTAssertEqual(dealtCard, PlayerCard(card: expectedCard, face: .up))
             }
         }
     }

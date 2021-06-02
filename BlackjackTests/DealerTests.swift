@@ -14,7 +14,7 @@ final class DealerTests: XCTestCase {
     func testGiveCardToDealerShouldAddCardToDealersHand() throws {
         let card = Card.all.randomElement()!
         let playerCard = PlayerCard(card: card, face: .up)
-        var subject = Dealer()
+        var subject = Dealer<Card>()
         let expected = Dealer(hand: Hand(card: playerCard))
         subject.addCard(playerCard)
         XCTAssertEqual(subject, expected)

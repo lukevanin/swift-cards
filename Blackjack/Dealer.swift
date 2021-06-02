@@ -8,17 +8,25 @@
 import Foundation
 
 
-struct Dealer: Equatable {
+struct Dealer<Card>: Equatable where Card: Hashable {
     
     private(set) var bank: Bank
-    private(set) var hand: Hand
+    private(set) var hand: Hand<Card>
     
-    init(bank: Bank = Bank(), hand: Hand = Hand()) {
+    init(bank: Bank = Bank(), hand: Hand<Card> = Hand()) {
         self.bank = bank
         self.hand = hand
     }
     
-    mutating func addCard(_ card: PlayerCard) {
+    mutating func withdraw(amount: Chip) throws {
+        try bank.withdraw(amount: amount)
+    }
+    
+    func addingCard(_ card: PlayerCard<Card>) -> Dealer {
+        Dealer(bank: bank, hand: hand.addingCard(card))
+    }
+    
+    mutating func addCard(_ card: PlayerCard<Card>) {
         hand.addCard(card)
     }
     

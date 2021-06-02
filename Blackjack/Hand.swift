@@ -13,21 +13,21 @@ enum HandError: Error {
 }
 
 
-struct Hand: Equatable {
+struct Hand<Card>: Equatable where Card: Hashable {
     
     private(set) var bet: Chip
-    private(set) var cards: [PlayerCard] = []
+    private(set) var cards: [PlayerCard<Card>] = []
     
     init(bet: Chip = 0) {
         self.bet = bet
     }
     
-    init(bet: Chip = 0, card: PlayerCard) {
+    init(bet: Chip = 0, card: PlayerCard<Card>) {
         self.bet = bet
         self.cards = [card]
     }
     
-    init(bet: Chip = 0, cards: [PlayerCard]) {
+    init(bet: Chip = 0, cards: [PlayerCard<Card>]) {
         self.bet = bet
         self.cards = cards
     }
@@ -36,10 +36,14 @@ struct Hand: Equatable {
         bet += amount
     }
     
-    mutating func addCard(_ card: PlayerCard) {
+    mutating func addCard(_ card: PlayerCard<Card>) {
         cards.append(card)
     }
-    
+
+    func addingCard(_ card: PlayerCard<Card>) -> Hand {
+        Hand(bet: bet, cards: cards + [card])
+    }
+
     mutating func revealCard(at index: Int) throws {
         guard index >= 0 && index < cards.count else {
             throw HandError.invalidCardIndex
