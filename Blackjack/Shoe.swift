@@ -9,7 +9,7 @@ import Foundation
 
 
 public enum ShoeError: Error {
-    case empty
+    case insufficientCards
 }
 
 
@@ -68,7 +68,7 @@ public struct Shoe<Card>: Equatable where Card: Hashable {
     
     mutating func dealCard(face: PlayerCard<Card>.Face) throws -> PlayerCard<Card> {
         guard cards.count > 0 else {
-            throw ShoeError.empty
+            throw ShoeError.insufficientCards
         }
         let card = cards.removeLast()
         return PlayerCard(card: card, face: face)

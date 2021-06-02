@@ -17,7 +17,7 @@ final class PlayerTests: XCTestCase {
         var subject = Blackjack(
             shoe: Shoe(card: card),
             dealer: Dealer(),
-            player: Player(bank: Bank())
+            player: Player(bank: Bank(), hand: Hand())
         )
         let expected = Blackjack(
             shoe: Shoe(),
@@ -165,7 +165,7 @@ final class PlayerTests: XCTestCase {
         let playerCardB = PlayerCard(card: cardB, face: .up)
         let playerCardC = PlayerCard(card: cardC, face: .up)
         var subject = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: cardC),
             dealer: Dealer(),
             player: Player(
                 hands: [
@@ -174,7 +174,7 @@ final class PlayerTests: XCTestCase {
             )
         )
         let expected1 = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: cardC),
             dealer: Dealer(),
             player: Player(
                 hands: [
@@ -214,7 +214,7 @@ final class PlayerTests: XCTestCase {
     
     // MARK: Double Down
     
-    func testDoubleDownShouldAddAmountToBetAndDecreaseBank() throws {
+    func testDoubleDown_ShouldAddAmountToBetAndDecreaseBank() throws {
         var subject = Player(
             bank: Bank(balance: 5),
             hands: [Hand(bet: 5)]

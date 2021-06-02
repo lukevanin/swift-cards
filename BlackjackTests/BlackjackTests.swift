@@ -31,8 +31,8 @@ final class BlackjackTests: XCTestCase {
         )
         let expected = Blackjack(
             shoe: Shoe(),
-            dealer: Dealer(),
-            player: Player(hand: Hand(card: PlayerCard(card: card, face: .up)))
+            dealer: Dealer(hand: Hand(card: PlayerCard(card: card, face: .up))),
+            player: Player()
         )
         try subject.dealCardToDealer(face: .up)
         XCTAssertEqual(subject, expected)
@@ -89,9 +89,9 @@ final class BlackjackTests: XCTestCase {
         let card = Card.all.randomElement()!
         let playerCard = PlayerCard(card: card, face: .up)
         var subject = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: card),
             dealer: Dealer(),
-            player: Player()
+            player: Player(hand: Hand())
         )
         let expected = Blackjack(
             shoe: Shoe(),
@@ -338,7 +338,7 @@ final class BlackjackTests: XCTestCase {
         let playerCardB = PlayerCard(card: cardB, face: .up)
         let playerCardC = PlayerCard(card: cardC, face: .up)
         var subject = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: cardC),
             dealer: Dealer(),
             player: Player(
                 bank: Bank(balance: 2),
@@ -348,7 +348,7 @@ final class BlackjackTests: XCTestCase {
             )
         )
         let expected1 = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: cardC),
             dealer: Dealer(),
             player: Player(
                 bank: Bank(balance: 1),
