@@ -117,6 +117,13 @@ struct Player: Equatable {
         let amount = hands[hand].returnInsurance()
         bank.deposit(amount: amount)
     }
+    
+    mutating func finish(hand: Int, outcome: Outcome) throws {
+        guard hand >= 0 && hand < hands.count else {
+            throw BlackjackError.invalidHand
+        }
+        try hands[hand].finish(outcome: outcome)
+    }
 }
 
 extension Player: CustomStringConvertible {

@@ -26,10 +26,6 @@ struct Dealer<Card>: Equatable where Card: Hashable {
         bank.deposit(amount: amount)
     }
 
-    func addingCard(_ card: PlayerCard<Card>) -> Dealer {
-        Dealer(bank: bank, hand: hand.addingCard(card))
-    }
-    
     mutating func addCard(_ card: PlayerCard<Card>) {
         hand.addCard(card)
     }

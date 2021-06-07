@@ -8,7 +8,7 @@
 import XCTest
 @testable import Blackjack
 
-final class GameTests: XCTestCase {
+final class BlackjackStateTests: XCTestCase {
 
 
     // MARK: - Betting
@@ -194,7 +194,6 @@ final class GameTests: XCTestCase {
             )
         )
         let expected = EndState(
-            outcome: .push,
             game: Blackjack(
                 shoe: Shoe(),
                 dealer: Dealer(
@@ -210,6 +209,7 @@ final class GameTests: XCTestCase {
                     bank: Bank(balance: 270),
                     hand: Hand(
                         bet: 90,
+                        outcome: .push,
                         cards: [
                             PlayerCard(card: cards[3], face: .up), // ace
                             PlayerCard(card: cards[1], face: .up), // ten
@@ -241,7 +241,6 @@ final class GameTests: XCTestCase {
             )
         )
         let expected = EndState(
-            outcome: .win,
             game: Blackjack(
                 shoe: Shoe(),
                 dealer: Dealer(
@@ -257,6 +256,7 @@ final class GameTests: XCTestCase {
                     bank: Bank(balance: 100 - 20 + 30), // 360 - 90 + ((80 / 2) * 3)
                     hand: Hand(
                         bet: 20,
+                        outcome: .win,
                         cards: [
                             PlayerCard(card: cards[3], face: .up), // ace
                             PlayerCard(card: cards[1], face: .up), // ten
@@ -268,6 +268,8 @@ final class GameTests: XCTestCase {
         let result = try subject.placeBet(amount: 20)
         XCTAssertEqual(result, .end(expected))
     }
+    
+    #warning("TODO: testPlaceBet_ShouldRevealHoleCard_WhenDealerHasAceOrTen")
 
 
     // MARK: - Insurance
@@ -308,7 +310,6 @@ final class GameTests: XCTestCase {
             )
         )
         let expected = EndState(
-            outcome: .lose,
             game: Blackjack(
                 shoe: Shoe(cards: cards),
                 dealer: Dealer(
@@ -324,6 +325,7 @@ final class GameTests: XCTestCase {
                     bank: Bank(balance: 100),
                     hand: Hand(
                         bet: 0,
+                        outcome: .lose,
                         cards: [
                             PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
                             PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
@@ -466,7 +468,6 @@ final class GameTests: XCTestCase {
             )
         )
         let expected = EndState(
-            outcome: .lose,
             game: Blackjack(
                 shoe: Shoe(cards: cards),
                 dealer: Dealer(
@@ -482,6 +483,7 @@ final class GameTests: XCTestCase {
                     bank: Bank(balance: 120),
                     hand: Hand(
                         bet: 0,
+                        outcome: .lose,
                         cards: [
                             PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
                             PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
@@ -499,15 +501,9 @@ final class GameTests: XCTestCase {
     /// have blackjack.
     ///
     func testBuyInsurance_AllowsPlay_WhenDealerHasNoBlackjack() throws {
-        let cards = [
-            Card(rank: .eight, suite: .spades),
-            Card(rank: .eight, suite: .hearts),
-            Card(rank: .ace, suite: .clubs),
-            Card(rank: .eight, suite: .diamonds),
-        ]
         let subject = InsuranceState(
             game: Blackjack(
-                shoe: Shoe(cards: cards),
+                shoe: Shoe(),
                 dealer: Dealer(
                     bank: Bank(balance: 100),
                     hand: Hand(
@@ -532,7 +528,7 @@ final class GameTests: XCTestCase {
         let expected = PlayerState(
             hand: 0,
             game: Blackjack(
-                shoe: Shoe(cards: cards),
+                shoe: Shoe(),
                 dealer: Dealer(
                     bank: Bank(balance: 110),
                     hand: Hand(
@@ -555,6 +551,903 @@ final class GameTests: XCTestCase {
             )
         )
         let result = try subject.buyInsurance(amount: 10)
+        XCTAssertEqual(result, .player(expected))
+    }
+    
+    
+    // MARK: - Play
+    
+    func testSurrender_ShouldForfeitBet() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 110),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 0,
+                        outcome: .forfeit
+                    )
+                )
+            )
+        )
+        let result = try subject.surrender()
+        XCTAssertEqual(result, .end(expected))
+    }
+
+    func testSplit_ShouldFail_WhenHandIsNotAPair() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .two, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        XCTAssertThrowsError(try subject.split())
+    }
+    
+    func testSplit_ShouldFail_WhenPlayerHasInsufficientFunds() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up), // ace
+                            PlayerCard(card: Card(rank: .eight, suite: .hearts), face: .up), // eight
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 9),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up), // eight
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up), // eight
+                        ]
+                    )
+                )
+            )
+        )
+        XCTAssertThrowsError(try subject.split())
+    }
+    
+    func testSplit_ShouldCreateAnotherHand() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up), // ace
+                            PlayerCard(card: Card(rank: .eight, suite: .hearts), face: .up), // eight
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up), // eight
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up), // eight
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .hearts), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 90),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up)
+                        ),
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up)
+                        ),
+                    ]
+                )
+            )
+        )
+        let result = try subject.split()
+        XCTAssertEqual(result, .player(expected))
+    }
+    
+    func testDoubleDown_ShouldDoubleBet() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 90),
+                    hands: [
+                        Hand(
+                            bet: 20,
+                            cards: [
+                                PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                                PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                            ]
+                        )
+                    ]
+                )
+            )
+        )
+        let result = try subject.doubleDown()
+        XCTAssertEqual(result, .player(expected))
+    }
+    
+    func testDoubleDown_ShouldFail_WhenPlayerHasInsufficientFunds() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 19),
+                    hand: Hand(
+                        bet: 20,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        XCTAssertThrowsError(try subject.doubleDown())
+    }
+
+    func testHit_ShouldDealCardToPlayer() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(card: Card(rank: .ace, suite: .spades)),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            cards: [
+                                PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                                PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                                PlayerCard(card: Card(rank: .ace, suite: .spades), face: .up),
+                            ]
+                        )
+                    ]
+                )
+            )
+        )
+        let result = try subject.hit()
+        XCTAssertEqual(result, .player(expected))
+    }
+    
+    func testHit_ShouldFail_WhenShoeIsEmpty() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand()
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        XCTAssertThrowsError(try subject.hit())
+    }
+    
+    func testHit_ShouldLose_WhenPlayerBusts() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(card: Card(rank: .two, suite: .hearts)),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .jack, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 110),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 0,
+                        outcome: .lose,
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .jack, suite: .diamonds), face: .up),
+                            PlayerCard(card: Card(rank: .two, suite: .hearts), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.hit()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    ///
+    /// Player wins when they score 21, and the dealer's hole card is shown (the dealers first card dealt is
+    /// an ace or a ten).
+    ///
+    func testHit_ShouldWin_WhenScoreIsTwentyOneAndHoleCardIsShown() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(card: Card(rank: .three, suite: .hearts)),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100 - 15),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .ten, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100 + 15),
+                    hand: Hand(
+                        bet: 10,
+                        outcome: .win,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                            PlayerCard(card: Card(rank: .three, suite: .hearts), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.hit()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    ///
+    ///
+    ///
+    func testHit_ShouldPush_WhenPlayerAndDealerScoreTwentyOne() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(
+                    cards: [
+                        Card(rank: .ten, suite: .diamonds),
+                        Card(rank: .nine, suite: .hearts),
+                    ]
+                ),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .three, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .three, suite: .diamonds), face: .up),
+                            PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        outcome: .push,
+                        cards: [
+                            PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .ace, suite: .diamonds), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .hearts), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.hit()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    ///
+    /// Special rules apply when a pair of aces is split. If the card is a ten then the playoff is equal to the
+    /// bet (paid 1:1 instead of 2:3).
+    ///
+    func testHit_ShouldPayOneToOne_WhenHandHasSplitAceAndTen() throws {
+        let subject = PlayerState(
+            hand: 1,
+            game: Blackjack(
+                shoe: Shoe(card: Card(rank: .ten, suite: .diamonds)),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            split: true,
+                            cards: [
+                                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                                PlayerCard(card: Card(rank: .six, suite: .diamonds), face: .up),
+                            ]
+                        ),
+                        Hand(
+                            bet: 10,
+                            split: true,
+                            card: PlayerCard(card: Card(rank: .ace, suite: .hearts), face: .up)
+                        ),
+                    ]
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100 - 10), // lose 10
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100 + 10), // win 10
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            outcome: .push,
+                            split: true,
+                            cards: [
+                                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                                PlayerCard(card: Card(rank: .six, suite: .diamonds), face: .up),
+                            ]
+                        ),
+                        Hand(
+                            bet: 10,
+                            outcome: .win,
+                            split: true,
+                            cards: [
+                                PlayerCard(card: Card(rank: .ace, suite: .hearts), face: .up),
+                                PlayerCard(card: Card(rank: .ten, suite: .diamonds), face: .up),
+                            ]
+                        ),
+                    ]
+                )
+            )
+        )
+        let result = try subject.hit()
+        XCTAssertEqual(result, .end(expected))
+    }
+
+    ///
+    /// Special rules apply when a pair of aces is split. The resulting hands can only be dealt one card
+    /// each.
+    ///
+    func testHit_ShouldFail_WhenHandHasSplitAceAndOneOtherCard() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(
+                    cards: [
+                        Card(rank: .six, suite: .diamonds),
+                    ]
+                ),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            split: true,
+                            cards: [
+                                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                                PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                            ]
+                        ),
+                        Hand(
+                            bet: 10,
+                            split: true,
+                            cards: [
+                                PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up),
+                            ]
+                        ),
+                    ]
+                )
+            )
+        )
+        XCTAssertThrowsError(try subject.hit())
+    }
+    
+    func testStand_ShouldWin_WhenDealerBusts() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(
+                    cards: [
+                        Card(rank: .six, suite: .diamonds),
+                    ]
+                ),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .two, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .two, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100 - 10),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .eight, suite: .diamonds), face: .up),
+                            PlayerCard(card: Card(rank: .six, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100 + 10),
+                    hand: Hand(
+                        bet: 10,
+                        outcome: .win,
+                        cards: [
+                            PlayerCard(card: Card(rank: .two, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .two, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.stand()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    func testStand_ShouldWin_WhenDealerHasLowerScore() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .nine, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100 - 10),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100 + 10),
+                    hand: Hand(
+                        bet: 10,
+                        outcome: .win,
+                        cards: [
+                            PlayerCard(card: Card(rank: .nine, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.stand()
+        XCTAssertEqual(result, .end(expected))
+    }
+
+    func testStand_ShouldLose_WhenDealerHasHigherScore() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100 + 10),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 0,
+                        outcome: .lose,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .seven, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.stand()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    func testStand_ShouldPush_WhenDealerHasSameScore() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let expected = EndState(
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        bet: 10,
+                        outcome: .push,
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .up),
+                        ]
+                    )
+                )
+            )
+        )
+        let result = try subject.stand()
+        XCTAssertEqual(result, .end(expected))
+    }
+    
+    func testStand_ShouldPlayNextHand_WhenPlayerHasMoreThanOneHand() throws {
+        let subject = PlayerState(
+            hand: 0,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up)
+                        ),
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .king, suite: .hearts), face: .up)
+                        ),
+                    ]
+                )
+            )
+        )
+        let expected = PlayerState(
+            hand: 1,
+            game: Blackjack(
+                shoe: Shoe(),
+                dealer: Dealer(
+                    bank: Bank(balance: 100),
+                    hand: Hand(
+                        cards: [
+                            PlayerCard(card: Card(rank: .eight, suite: .clubs), face: .up),
+                            PlayerCard(card: Card(rank: .nine, suite: .diamonds), face: .down),
+                        ]
+                    )
+                ),
+                player: Player(
+                    bank: Bank(balance: 100),
+                    hands: [
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .ace, suite: .clubs), face: .up)
+                        ),
+                        Hand(
+                            bet: 10,
+                            card: PlayerCard(card: Card(rank: .king, suite: .hearts), face: .up)
+                        ),
+                    ]
+                )
+            )
+        )
+        let result = try subject.stand()
         XCTAssertEqual(result, .player(expected))
     }
 }

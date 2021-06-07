@@ -212,6 +212,8 @@ public enum BlackjackError: Error {
     case insufficientFunds
     case alreadyPlaying
     case overInsurance
+    case handAlreadyFinished
+    case splitAceLimitReached
 }
 
 
@@ -266,6 +268,19 @@ extension Hand where Card == StandardDeck.Card {
         let a = cards[0].card.rank
         let b = cards[1].card.rank
         return (a == .ace && b.isTen) || (a.isTen && b == .ace)
+    }
+    
+    var isCompleteSplitAce: Bool {
+        guard isSplit else {
+            return false
+        }
+        guard cards.count == 2 else {
+            return false
+        }
+        guard cards[0].card.rank == .ace else {
+            return false
+        }
+        return true
     }
 }
 
@@ -397,24 +412,20 @@ struct Blackjack: Equatable {
         try dealer.addCard(card)
     }
 
-    #warning("TODO: Remove")
     mutating func splitPlayerHand(_ hand: Int) throws {
         try player.splitHand(hand)
     }
-    
-    #warning("TODO: Remove")
-    mutating func giveCardToDealer(_ card: PlayerCard<Card>) {
-        dealer.addCard(card)
-    }
-    
-    #warning("TODO: Remove")
+
     mutating func revealDealerCard(at index: Int) throws {
         try dealer.revealCard(at: index)
     }
     
-    #warning("TODO: Remove")
     mutating func doubleDown(hand: Int) throws {
         try player.doubleDown(hand: hand)
+    }
+    
+    mutating func finishHand(hand: Int, outcome: Outcome) throws {
+        try player.finish(hand: hand, outcome: outcome)
     }
 }
 
@@ -432,14 +443,6 @@ extension Blackjack: CustomStringConvertible {
 
 
 // MARK: - State
-
-
-enum Outcome: Equatable {
-    case push
-    case surrender
-    case win
-    case lose
-}
 
 
 enum BlackjackState: Equatable {
@@ -479,12 +482,14 @@ struct BetState: Equatable {
             let dealerBlackjack = game.dealer.hand.blackjack
             if dealerBlackjack {
                 // Dealer and player have blackjack.
-                return .end(EndState(outcome: .push, game: game))
+                try game.finishHand(hand: 0, outcome: .push)
+                return .end(EndState(game: game))
             }
             else {
                 // Only player has blackjack.
                 try game.awardPlayer(hand: 0, ratio: Ratio(2, 3))
-                return .end(EndState(outcome: .win, game: game))
+                try game.finishHand(hand: 0, outcome: .win)
+                return .end(EndState(game: game))
             }
             
         case (true, false):
@@ -494,10 +499,12 @@ struct BetState: Equatable {
         case (false, true):
             // Only player has blackjack.
             try game.awardPlayer(hand: 0, ratio: Ratio(2, 3))
-            return .end(EndState(outcome: .win, game: game))
+            try game.finishHand(hand: 0, outcome: .win)
+            return .end(EndState(game: game))
 
         case (false, false):
             // No blackjack.
+            #warning("TODO: Reveal dealer's hole card")
             return .player(PlayerState(hand: 0, game: game))
         }
     }
@@ -527,7 +534,8 @@ struct InsuranceState: Equatable {
             // players bet. Award the players insurance at 2:1.
             try game.takePlayerBet(hand: 0)
             try game.awardInsurance(hand: 0, ratio: Ratio(1, 2))
-            return .end(EndState(outcome: .lose, game: game))
+            try game.finishHand(hand: 0, outcome: .lose)
+            return .end(EndState(game: game))
         }
         else {
             // Dealer does not have blackjack. Take the insurance and
@@ -544,38 +552,129 @@ struct PlayerState: Equatable {
     let hand: Int
     let game: Blackjack
 
-//    func split() throws -> BlackjackState {
-//
-//    }
-//
-//    func doubleDown() throws -> BlackjackState {
-//
-//    }
-//
-//    func insurance() throws -> BlackjackState {
-//
-//    }
-//
-//    func hit() throws -> BlackjackState {
-//
-//    }
-//
-//    func stand() throws -> BlackjackState {
-//
-//    }
-//
-//    func surrender() throws -> BlackjackState {
-//
-//    }
+    func split() throws -> BlackjackState {
+        var game = game
+        try game.splitPlayerHand(hand)
+        return .player(PlayerState(hand: hand, game: game))
+    }
+
+    func doubleDown() throws -> BlackjackState {
+        var game = game
+        try game.doubleDown(hand: hand)
+        return .player(PlayerState(hand: hand, game: game))
+    }
+
+    func hit() throws -> BlackjackState {
+        var game = game
+        if game.player.hands[hand].isCompleteSplitAce {
+            throw BlackjackError.splitAceLimitReached
+        }
+        try game.dealCardToPlayer(hand: hand, face: .up)
+        let score = try game.player.hands[hand].score()
+        if score > 21 {
+            // Player bust. Player loses.
+            try game.takePlayerBet(hand: hand)
+            return try finish(game: game, outcome: .lose)
+        }
+        else {
+            if score == 21 {
+                let isShowingHoleCard = game.dealer.hand.cards[1].face == .up
+                if isShowingHoleCard {
+                    // Player scored 21 and both of the dealer's cards
+                    // are visible.
+                    try game.awardPlayer(hand: hand, ratio: Ratio(2, 3))
+                    return try finish(game: game, outcome: .win)
+                }
+                else {
+                    // Player scored 21 and the hole card is face down. Finish
+                    // the hand.
+                    return try finish(game: game, outcome: .undetermined)
+                }
+            }
+            else {
+                // Player scored less than 21,
+                return .player(PlayerState(hand: hand, game: game))
+            }
+        }
+    }
+
+    func stand() throws -> BlackjackState {
+        try finish(game: game, outcome: .undetermined)
+    }
+
+    func surrender() throws -> BlackjackState {
+        var game = game
+        try game.takePlayerBet(hand: hand)
+        try game.finishHand(hand: 0, outcome: .forfeit)
+        return .end(EndState(game: game))
+    }
+    
+    private func finish(game: Blackjack, outcome: Outcome) throws -> BlackjackState {
+        var game = game
+        if outcome != .undetermined {
+            try game.finishHand(hand: hand, outcome: outcome)
+        }
+        let nextHand = hand + 1
+        if nextHand < game.player.hands.count {
+            // Play next hand.
+            return .player(PlayerState(hand: nextHand, game: game))
+        }
+        // No more hands to play. Play dealer.
+        // Show the hole card if it has not been shown yet.
+        if game.dealer.hand.cards[1].face == .down {
+            try game.revealDealerCard(at: 1)
+        }
+        // Deal cards until the dealer reaches 17 or above.
+        while try game.dealer.hand.score() < 17 {
+            try game.dealCardToDealer(face: .up)
+        }
+        // Compare dealers hand to each of the player hands.
+        let dealerScore = try game.dealer.hand.score()
+        for i in 0 ..< game.player.hands.count {
+            guard game.player.hands[i].outcome == .undetermined else {
+                continue
+            }
+            let playerScore = try game.player.hands[i].score()
+            let outcome: Outcome
+            if playerScore > 21 {
+                // Player is bust. Player loses.
+                outcome = .lose
+            }
+            else if dealerScore > 21 {
+                // Dealer bust. Player is not bust. Player wins.
+                outcome = .win
+            }
+            else if playerScore > dealerScore {
+                // Player trumps dealer. Player wins.
+                outcome = .win
+            }
+            else if playerScore < dealerScore {
+                // Dealer trumps player. Dealer wins.
+                outcome = .lose
+            }
+            else {
+                // Stand-off
+                outcome = .push
+            }
+            if outcome == .win {
+                #warning("TODO: Award 2:3 on blackjack except if hand is a split ace")
+                try game.awardPlayer(hand: i, ratio: Ratio(1, 1))
+            }
+            else if outcome == .lose {
+                try game.takePlayerBet(hand: i)
+            }
+            try game.finishHand(hand: i, outcome: outcome)
+        }
+        return .end(EndState(game: game))
+    }
 }
 
 
 struct EndState: Equatable {
     
-    let outcome: Outcome
     let game: Blackjack
     
-    func playAgain() throws -> BlackjackState {
+    func play() throws -> BlackjackState {
         fatalError("not implemented")
     }
 }

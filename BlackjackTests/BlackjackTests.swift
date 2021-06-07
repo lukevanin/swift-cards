@@ -40,20 +40,19 @@ final class BlackjackTests: XCTestCase {
     
     // MARK: Give card to dealer
     
-    func testGiveCardToDealerShouldAddCardToDealersHand() throws {
+    func testDealCardToDealerShouldAddCardToDealersHand() throws {
         let card = Card.all.randomElement()!
-        let playerCard = PlayerCard(card: card, face: .up)
         var subject = Blackjack(
-            shoe: Shoe(),
+            shoe: Shoe(card: card),
             dealer: Dealer(),
             player: Player()
         )
         let expected = Blackjack(
             shoe: Shoe(),
-            dealer: Dealer(hand: Hand(card: playerCard)),
+            dealer: Dealer(hand: Hand(card: PlayerCard(card: card, face: .up))),
             player: Player()
         )
-        subject.giveCardToDealer(playerCard)
+        try subject.dealCardToDealer(face: .up)
         XCTAssertEqual(subject, expected)
     }
     
